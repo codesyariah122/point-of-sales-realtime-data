@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Models\Profile;
 use App\Models\UserRole;
 use App\Events\EventNotification;
+use App\Models\Roles;
 
 class UserManagement extends Controller
 {
@@ -66,8 +67,6 @@ class UserManagement extends Controller
     public function store(Request $request)
     {
         try {
-            $users = User::with('profiles')->get();
-
             $validator = Validator::make($request->all(), [
                 'name' => 'required|max:25',
                 'email' => 'required|email|unique:users,email',
@@ -86,46 +85,54 @@ class UserManagement extends Controller
                 return response()->json($validator->errors(), 400);
             }
 
-            $new_user = new User;
-            $new_user->name = $request->name;
-            $new_user->email = $request->email;
-            $new_user->password = Hash::make($request->password);
-            $new_user->status = $request->status;
-            $new_user->save();
-            $new_profile = new Profile;
-            $new_profile->username = $request->username ? $request->username : trim(preg_replace('/\s+/', '_', $request->name));
-            if ($request->file('photo')) {
-                $file = $request->file('photo')->store(trim(preg_replace('/\s+/', '', $new_user->name)) . '/image/profile', 'public');
-                $new_profile->photo = $file;
-            }
-            $new_profile->save();
-            $user_profile_id = $new_profile->id;
-            $new_user->profiles()->sync($user_profile_id);
-
             $role_id = $request->roles;
-            $role_user = new UserRole;
-            $role_user->user_id = $new_user->id;
-            $role_user->roles_id = $role_id;
-            $role_user->save();
+            $check_user_role = Roles::whereId($role_id)->get();
 
+            if (count($check_user_role) > 0) {
+                $new_user = new User;
+                $new_user->name = $request->name;
+                $new_user->email = $request->email;
+                $new_user->password = Hash::make($request->password);
+                $new_user->status = $request->status;
+                $new_user->save();
+                $new_profile = new Profile;
+                $new_profile->username = $request->username ? $request->username : trim(preg_replace('/\s+/', '_', $request->name));
+                if ($request->file('photo')) {
+                    $file = $request->file('photo')->store(trim(preg_replace('/\s+/', '', $new_user->name)) . '/image/profile', 'public');
+                    $new_profile->photo = $file;
+                }
+                $new_profile->save();
+                $user_profile_id = $new_profile->id;
+                $new_user->profiles()->sync($user_profile_id);
 
-            $add_new_user = User::whereId($new_user->id)
-                ->with('profiles')
-                ->with('roles')
-                ->get();
+                $role_user = new UserRole;
+                $role_user->user_id = $new_user->id;
+                $role_user->roles_id = $role_id;
+                $role_user->save();
 
-            $data_event = [
-                'notif' => "{$add_new_user[0]->name}, berhasil di tambahkan!",
-                'data' => $add_new_user
-            ];
+                $add_new_user = User::whereId($new_user->id)
+                    ->with('profiles')
+                    ->with('roles')
+                    ->get();
 
-            event(new EventNotification($data_event));
+                $data_event = [
+                    'notif' => "{$add_new_user[0]->name}, berhasil di tambahkan!",
+                    'data' => $add_new_user
+                ];
 
-            return response()->json([
-                'status' => true,
-                'message' => 'User baru berhasil dibuat',
-                'data' => $add_new_user
-            ]);
+                event(new EventNotification($data_event));
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'User baru berhasil dibuat',
+                    'data' => $add_new_user
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User roles is not defined!'
+                ]);
+            }
         } catch (\Throwable $th) {
             throw $th;
         }
