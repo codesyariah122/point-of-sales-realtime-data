@@ -70,7 +70,7 @@ class RolesManagement extends Controller
             }
             $roles = new Roles;
             $roles->roles = $request->roles;
-            $roles->permission = json_encode($request->permission ? $request->permission : '');
+            $roles->permission = $request->permission;
             $roles->save();
             $new_roles = Roles::whereId($roles->id)->get();
 
