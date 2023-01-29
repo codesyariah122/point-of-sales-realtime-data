@@ -32,7 +32,9 @@ class RolesManagement extends Controller
     public function index()
     {
         try {
-            $roles = Roles::with('users')->get();
+            $roles = Roles::whereNotIn('roles', [json_encode(['OWNER'])])
+                ->with('users')
+                ->get();
             return response()->json([
                 'message' => 'User role list data',
                 'data' => $roles

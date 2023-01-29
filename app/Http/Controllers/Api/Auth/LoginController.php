@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Models\Profile;
 use App\Models\Login;
 use App\Helpers\UserHelpers;
+use App\Events\EventNotification;
 
 
 class LoginController extends Controller
@@ -47,30 +48,31 @@ class LoginController extends Controller
                 return response()->json($validator->errors(), 400);
             }
 
-            $user = User::where('email', $request->email)->first();
+            $user = User::where('email', $request->email)->get();
 
-            if (!$user) {
+
+            if (count($user) === 0) {
                 return response()->json([
                     'not_found' => true,
                     'message' => 'Your email not registered !'
                 ]);
             } else {
 
-                if (!Hash::check($request->password, $user->password)) :
+                if (!Hash::check($request->password, $user[0]->password)) :
                     return response()->json([
                         'success' => false,
                         'message' => 'Your password its wrong'
                     ]);
                 else :
-                    if ($user->status === "INACTIVE") {
+                    if ($user[0]->status === "INACTIVE") {
                         return response()->json([
                             'in_active' => true,
-                            'message' => "{$user->name}, Akun Tidak Aktiv.",
-                            'data' => $user
+                            'message' => "{$user[0]->name}, Akun Tidak Aktiv.",
+                            'data' => $user[0]
                         ]);
                     } else {
-                        if ($this->forbidenIsUserLogin($user->is_login)) {
-                            $last_login = Carbon::parse($user->last_login)->diffForHumans();
+                        if ($this->forbidenIsUserLogin($user[0]->is_login)) {
+                            $last_login = Carbon::parse($user[0]->last_login)->diffForHumans();
                             return response()->json([
                                 'is_login' => true,
                                 'message' => "Akun sedang digunakan {$last_login}",
@@ -78,9 +80,9 @@ class LoginController extends Controller
                             ]);
                         }
 
-                        $token = $user->createToken('authToken')->accessToken;
+                        $token = $user[0]->createToken($user[0]->name)->accessToken;
 
-                        $user_login = User::findOrFail($user->id);
+                        $user_login = User::findOrFail($user[0]->id);
                         $user_login->is_login = 1;
 
                         if ($request->remember_me !== NULL) {
@@ -91,6 +93,7 @@ class LoginController extends Controller
                         $user_login->last_login = Carbon::now();
                         $user_login->save();
                         $user_id = $user_login->id;
+
                         $logins = new Login;
                         $logins->user_id = $user_id;
                         $logins->user_token_login = $token;
@@ -98,13 +101,21 @@ class LoginController extends Controller
                         $login_id = $logins->id;
 
                         // sync pivot table
-                        $user->logins()->sync($login_id);
+                        $user[0]->logins()->sync($login_id);
 
                         $userIsLogin = User::whereId($user_login->id)
                             ->with('roles')
                             ->with('profiles')
                             ->with('logins')
                             ->get();
+
+
+                        $data_event = [
+                            'notif' => "{$user[0]->name}, baru saja login!",
+                            'data' => $userIsLogin
+                        ];
+
+                        event(new EventNotification($data_event));
 
                         return response()->json([
                             'success' => true,
@@ -135,10 +146,16 @@ class LoginController extends Controller
             $user->remember_token = null;
             $user->save();
 
-
             $removeToken = $request->user()->tokens()->delete();
             $delete_login = Login::whereUserId($user->id);
             $delete_login->delete();
+
+            $data_event = [
+                'notif' => "{$user->name}, telah keluar!",
+                'data' => $user
+            ];
+
+            event(new EventNotification($data_event));
 
             if ($removeToken) {
                 return response()->json([
@@ -152,24 +169,27 @@ class LoginController extends Controller
         }
     }
 
-    public function userIsLogin()
+    public function userIsLogin(Request $request)
     {
         try {
-            $user = User::whereIsLogin(1)
+            $user = $request->user();
+
+            $user_login = User::whereEmail($user->email)
                 ->with('profiles')
                 ->with('roles')
                 ->with('logins')
-                ->first();
-            if ($user !== NULL) {
+                ->get();
+            if (count($user_login) > 0) {
                 return response()->json([
                     'message' => 'User data is login',
-                    'data' => $user
+                    'data' => $user_login
                 ], 200);
+            } else {
+                return response()->json([
+                    'not_login' => true,
+                    'message' => 'Anauthenticated'
+                ]);
             }
-            return response()->json([
-                'not_login' => true,
-                'message' => 'Anauthenticated'
-            ]);
         } catch (\Throwable $th) {
             return response()->json(['valid' => auth()->check()]);
         }
