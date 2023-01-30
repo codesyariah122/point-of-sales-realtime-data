@@ -25,6 +25,7 @@ Route::middleware('auth:api')->prefix('v1/fitur')->group(function () {
     Route::resource('/menu-management', MenuManagement::class);
     Route::resource('/submenu-management', SubMenuManagement::class);
     Route::post('/access-menu', [UserAccessMenuController::class, 'user_access_menu']);
+    Route::get('/access-menu', [UserAccessMenuController::class, 'access_menu_list']);
     Route::post('/user-role', [UserRoleManageController::class, 'user_role']);
 });
 

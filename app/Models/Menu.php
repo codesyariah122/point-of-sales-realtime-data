@@ -9,6 +9,8 @@ class Menu extends Model
 {
     use HasFactory;
 
+    protected $casts = ['roles' => 'array'];
+
     public function sub_menus()
     {
         return $this->belongsToMany('App\Models\SubMenu');

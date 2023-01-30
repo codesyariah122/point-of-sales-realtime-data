@@ -35,8 +35,7 @@ class AuthServiceProvider extends ServiceProvider
             'user-management',
             'role-management',
             'menu-management',
-            'submenu-management',
-            'access-menu'
+            'submenu-management'
         ];
         self::__contstruct($gate_data);
     }
