@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\Fitur;
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\{LoginController, RegisterController};
-use App\Http\Controllers\Api\Dashboard\{RolesManagement, UserManagement, UserRoleManageController};
+use App\Http\Controllers\Api\Dashboard\{RolesManagement, UserManagement, UserRoleManageController, MenuManagement, SubMenuManagement, UserAccessMenuController};
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +22,9 @@ Route::middleware('auth:api')->prefix('v1/fitur')->group(function () {
     Route::get('/user-login', [LoginController::class, 'userIsLogin']);
     Route::resource('/user-management', UserManagement::class);
     Route::resource('/role-management', RolesManagement::class);
+    Route::resource('/menu-management', MenuManagement::class);
+    Route::resource('/submenu-management', SubMenuManagement::class);
+    Route::post('/access-menu', [UserAccessMenuController::class, 'user_access_menu']);
     Route::post('/user-role', [UserRoleManageController::class, 'user_role']);
 });
 

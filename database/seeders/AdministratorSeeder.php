@@ -37,7 +37,6 @@ class AdministratorSeeder extends Seeder
         $administrator->profiles()->sync($administrator_profile->id);
         $roles = new Roles;
         $roles->roles = json_encode(["OWNER"]);
-        $roles->permission = json_encode(["Dashboard", "Inventory", "Pengguna", "Customer", "Supplier", "Transaction", "Report", "Settings"]);
         $roles->save();
         $administrator->roles()->sync($roles->id);
         $this->command->info("User admin created successfully");

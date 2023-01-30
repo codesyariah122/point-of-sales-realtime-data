@@ -3,16 +3,12 @@
 namespace App\Http\Controllers\Api\Dashboard;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
-use Auth;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use App\Helpers\UserHelpers;
-use App\Models\Roles;
+use App\Models\Menu;
 
-class RolesManagement extends Controller
+class MenuManagement extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -23,8 +19,7 @@ class RolesManagement extends Controller
     {
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
-            if (Gate::allows('role-management')) return $next($request);
-
+            if (Gate::allows('menu-management')) return $next($request);
             abort(403, 'Anda tidak memiliki cukup hak akses');
         });
     }
@@ -32,12 +27,10 @@ class RolesManagement extends Controller
     public function index()
     {
         try {
-            $roles = Roles::whereNotIn('roles', [json_encode(['OWNER'])])
-                ->with('users')
-                ->get();
+            $menu = Menu::all();
             return response()->json([
-                'message' => 'User role list data',
-                'data' => $roles
+                'message' => 'List all menu',
+                'data' => $menu
             ]);
         } catch (\Throwable $th) {
             throw $th;
@@ -64,19 +57,23 @@ class RolesManagement extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'roles' => 'required',
+                'menu' => 'required'
             ]);
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 400);
             }
-            $roles = new Roles;
-            $roles->roles = $request->roles;
-            $roles->save();
-            $new_roles = Roles::whereId($roles->id)->get();
-
+            $check_already = Menu::whereMenu($request->menu)->get();
+            if (count($check_already) > 0) {
+                return response()->json([
+                    'message' => "{$request->menu}, sudah tersedia!"
+                ]);
+            }
+            $menu = new Menu;
+            $menu->menu = $request->menu;
+            $menu->save();
             return response()->json([
-                'message' => 'Add new roles',
-                'data' => $new_roles
+                'message' => 'Added new menu',
+                'data' => $menu
             ]);
         } catch (\Throwable $th) {
             throw $th;

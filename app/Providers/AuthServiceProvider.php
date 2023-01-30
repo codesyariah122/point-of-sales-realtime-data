@@ -3,10 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Gate;
 use Laravel\Passport\Passport;
-use App\Models\User;
 use Carbon\Carbon;
+use App\Helpers\FitureHelpers;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -18,12 +17,30 @@ class AuthServiceProvider extends ServiceProvider
     protected $policies = [
         // 'App\Models\Model' => 'App\Policies\ModelPolicy',
     ];
-
+    protected $helpers = [];
     /**
      * Register any authentication / authorization services.
      *
      * @return void
      */
+
+    public function __contstruct($data)
+    {
+        $this->helpers = $data;
+    }
+
+    public function set_data()
+    {
+        $gate_data = [
+            'user-management',
+            'role-management',
+            'menu-management',
+            'submenu-management',
+            'access-menu'
+        ];
+        self::__contstruct($gate_data);
+    }
+
     public function boot()
     {
         $this->registerPolicies();
@@ -32,22 +49,10 @@ class AuthServiceProvider extends ServiceProvider
 
         Passport::personalAccessTokensExpireIn(Carbon::now()->addDays(1));
 
-        Gate::define('user-management', function ($user) {
-            // return count(array_intersect(["ADMIN", "OWNER"], json_decode($user->roles))) ? true :  false;
-            $user_id = $user->id;
-            $roles = User::whereId($user_id)->with('roles')->get();
-            $role = json_decode($roles[0]->roles[0]->roles);
+        self::set_data();
 
-            return count(array_intersect(["ADMIN", "OWNER"], $role)) ? true :  false;
-        });
+        $gates = new FitureHelpers($this->helpers);
 
-        Gate::define('role-management', function ($user) {
-            // return count(array_intersect(["ADMIN", "OWNER"], json_decode($user->roles))) ? true :  false;
-            $user_id = $user->id;
-            $roles = User::whereId($user_id)->with('roles')->get();
-            $role = json_decode($roles[0]->roles[0]->roles);
-
-            return count(array_intersect(["ADMIN", "OWNER"], $role)) ? true :  false;
-        });
+        $gates->GatesAccess();
     }
 }

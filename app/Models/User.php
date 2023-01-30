@@ -56,8 +56,14 @@ class User extends Authenticatable
     {
         return $this->belongsToMany('App\Models\Login');
     }
+
     public function roles()
     {
         return $this->belongsToMany('App\Models\Roles');
+    }
+
+    public function user_menus()
+    {
+        return $this->belongsToMany('App\Models\UserMenu');
     }
 }

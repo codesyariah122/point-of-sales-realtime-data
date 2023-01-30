@@ -3,16 +3,13 @@
 namespace App\Http\Controllers\Api\Dashboard;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
-use Auth;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use App\Helpers\UserHelpers;
-use App\Models\Roles;
+use App\Models\SubMenu;
+use App\Models\Menu;
 
-class RolesManagement extends Controller
+class SubMenuManagement extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -23,8 +20,7 @@ class RolesManagement extends Controller
     {
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
-            if (Gate::allows('role-management')) return $next($request);
-
+            if (Gate::allows('submenu-management')) return $next($request);
             abort(403, 'Anda tidak memiliki cukup hak akses');
         });
     }
@@ -32,12 +28,10 @@ class RolesManagement extends Controller
     public function index()
     {
         try {
-            $roles = Roles::whereNotIn('roles', [json_encode(['OWNER'])])
-                ->with('users')
-                ->get();
+            $menu = Menu::with('sub_menus')->get();
             return response()->json([
-                'message' => 'User role list data',
-                'data' => $roles
+                'message' => 'List all menus',
+                'data' => $menu
             ]);
         } catch (\Throwable $th) {
             throw $th;
@@ -64,19 +58,37 @@ class RolesManagement extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'roles' => 'required',
+                'parent_menu' => 'required',
+                'menu' => 'required',
+                'link' => 'required',
+                'icon' => 'required'
             ]);
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 400);
             }
-            $roles = new Roles;
-            $roles->roles = $request->roles;
-            $roles->save();
-            $new_roles = Roles::whereId($roles->id)->get();
+
+            $menu = Menu::whereId($request->parent_menu)->get();
+
+            // var_dump($menu[0]->id);
+            // die;
+
+            $menu_id = $menu[0]->id;
+
+            $sub_menu = new SubMenu;
+            $sub_menu->menu = $request->menu;
+            $sub_menu->link = $request->link;
+            $sub_menu->icon = $request->icon;
+            $sub_menu->is_active = $request->is_active;
+            $sub_menu->save();
+            $sub_menu->menus()->sync($menu_id);
+
+            $new_menu = Menu::whereId($menu_id)
+                ->with('sub_menus')
+                ->get();
 
             return response()->json([
-                'message' => 'Add new roles',
-                'data' => $new_roles
+                'message' => 'New sub menu added',
+                'data' => $new_menu
             ]);
         } catch (\Throwable $th) {
             throw $th;
