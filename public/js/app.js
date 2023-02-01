@@ -2660,6 +2660,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+/* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
 //
 //
 //
@@ -2676,7 +2677,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   data: function data() {
     return {
-      asset_url: "http://codot.com/assets"
+      asset_url: process.env.MIX_ASSET_URL
     };
   }
 });
@@ -2787,7 +2788,7 @@ __webpack_require__.r(__webpack_exports__);
     DefaultLayout: _layouts_DefaultLayout__WEBPACK_IMPORTED_MODULE_0__["default"]
   },
   mounted: function mounted() {
-    console.log($context);
+    console.log(this.$context);
   },
   data: function data() {
     var _window;

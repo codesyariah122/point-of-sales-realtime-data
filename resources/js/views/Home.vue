@@ -56,7 +56,7 @@ export default {
     name: "Home",
     components: { DefaultLayout },
     mounted() {
-        console.log($context);
+        console.log(this.$context);
     },
     data() {
         return {

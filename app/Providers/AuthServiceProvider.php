@@ -4,8 +4,13 @@ namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Laravel\Passport\Passport;
+use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Helpers\FitureHelpers;
+use Auth;
+use App\Models\User;
+use App\Models\Profile;
+use App\Models\Login;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -40,13 +45,28 @@ class AuthServiceProvider extends ServiceProvider
         self::__contstruct($gate_data);
     }
 
-    public function boot()
+    public function boot(Request $request)
     {
         $this->registerPolicies();
 
-        Passport::routes();
 
-        Passport::personalAccessTokensExpireIn(Carbon::now()->addDays(1));
+        Passport::routes();
+        // Passport::personalAccessTokensExpireIn(Carbon::now()->addSecond(30));
+        // if (Passport::personalAccessTokensExpireIn(Carbon::now()->addSecond(30))) {
+
+        //     if ($request->header('Authorization') !== NULL) {
+        //         $token = $request->header('Authorization');
+        //         $token_login = explode(" ", $token)[1];
+        //         $user_token = Login::where('user_token_login', $token_login)->get();
+
+        //         $user_login = User::findOrFail($user_token[0]->user_id);
+        //         $user_login->is_login = 0;
+        //         $user_login->expires_at = NULL;
+        //         $user_login->save();
+        //         $user_token->delete();
+        //     }
+        // }
+
 
         self::set_data();
 

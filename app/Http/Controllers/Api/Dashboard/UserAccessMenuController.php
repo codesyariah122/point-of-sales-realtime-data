@@ -31,6 +31,7 @@ class UserAccessMenuController extends Controller
                 ->get();
             $user_roles = $user_logins[0]->roles[0]->id;
 
+
             $list_menus = Menu::whereJsonContains('roles', $user_roles)
                 ->with('sub_menus')
                 ->get();

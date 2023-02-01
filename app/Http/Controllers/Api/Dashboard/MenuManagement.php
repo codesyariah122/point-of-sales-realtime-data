@@ -62,6 +62,7 @@ class MenuManagement extends Controller
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 400);
             }
+
             $check_already = Menu::whereMenu($request->menu)->get();
             if (count($check_already) > 0) {
                 return response()->json([
@@ -70,6 +71,8 @@ class MenuManagement extends Controller
             }
             $menu = new Menu;
             $menu->menu = $request->menu;
+            $menu->roles = json_decode($request->roles);
+
             $menu->save();
             return response()->json([
                 'message' => 'Added new menu',
