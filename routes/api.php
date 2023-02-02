@@ -20,9 +20,17 @@ use App\Http\Controllers\Api\Dashboard\{RolesManagement, UserManagement, UserRol
 
 Route::middleware('auth:api')->prefix('v1/fitur')->group(function () {
     Route::get('/user-login', [LoginController::class, 'userIsLogin']);
+    // User management
     Route::resource('/user-management', UserManagement::class);
+    Route::get('/trashed', [WebFiturController::class, 
+        'trash']);
+
+    // Role management
     Route::resource('/role-management', RolesManagement::class);
+
+    // Menu mangement
     Route::resource('/menu-management', MenuManagement::class);
+
     Route::resource('/submenu-management', SubMenuManagement::class);
     Route::post('/access-menu', [UserAccessMenuController::class, 'user_access_menu']);
     Route::get('/access-menu', [UserAccessMenuController::class, 'access_menu_list']);

@@ -33,7 +33,8 @@ class UserManagement extends Controller
     public function index()
     {
         try {
-            $users = User::with('profiles')
+            $users = User::whereNull('deleted_at')
+                ->with('profiles')
                 ->with('roles')
                 ->get();
             return response()->json([

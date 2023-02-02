@@ -20,8 +20,9 @@ class ProductManagement extends Controller
     public function index()
     {
         try {
-            $products = Product::with('categories')
-                ->paginate(10);
+            $products = Product::whereNull('deleted_at')
+                ->with('categories')
+                ->paginate(5);
 
             return response()->json([
                 'message' => 'List product data',
@@ -145,6 +146,25 @@ class ProductManagement extends Controller
      */
     public function destroy($id)
     {
-        //
+        try {
+            $delete_product = Product::findOrFail($id);
+            $delete_product->categories()->delete();
+            $delete_product->delete();
+
+             $data_event = [
+                'notif' => "{$delete_product->name}, berhasil di hapus!",
+                'data' => $delete_product
+            ];
+
+            event(new EventNotification($data_event));
+
+            return response()->json([
+                'success' => true,
+                'message' => "Product {$delete_product->name} berhasil di hapus",
+                'data' => $delete_product
+            ]);
+        }catch (\Throwable $th) {
+            throw $th;
+        }
     }
 }

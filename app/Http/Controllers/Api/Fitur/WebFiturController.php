@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Api\Resources\ContextData;
 use \Milon\Barcode\DNS1D;
+use App\Models\User;
+use App\Models\Product;
 
 class WebFiturController extends Controller
 {
@@ -46,6 +48,37 @@ class WebFiturController extends Controller
                 ]);
             }
 
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public function trash(Request $request)
+    {
+        try {
+            $dataType = $request->query('type');
+            switch($dataType):
+                case 'USER_DATA':
+                    $deleted = User::onlyTrashed()
+                        ->with('roles')
+                        ->paginate(10);
+                break;
+
+                case 'PRODUCT_DATA':
+                    $deleted = Product::onlyTrashed()
+                        ->with('categories')
+                        ->paginate(10);
+                break;
+
+                default:
+                    $deleted = [];
+                break;
+            endswitch;
+
+            return response()->json([
+                'message' => 'Deleted data on trashed!',
+                'data' => $deleted
+            ]);
         } catch (\Throwable $th) {
             throw $th;
         }
