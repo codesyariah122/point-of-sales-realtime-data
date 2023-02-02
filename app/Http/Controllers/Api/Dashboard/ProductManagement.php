@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use App\Models\Product;
 use Piqer\Barcode;
+use App\Events\EventNotification;
 
 class ProductManagement extends Controller
 {
@@ -84,6 +85,13 @@ class ProductManagement extends Controller
             $new_productAdd = Product::whereId($new_productId)
                 ->with('categories')
                 ->get();
+
+            $data_event = [
+                'notif' => "{$new_productAdd[0]->name}, berhasil di tambahkan!",
+                'data' => $new_productAdd
+            ];
+
+            event(new EventNotification($data_event));
 
             return response()->json([
                 'message' => 'added new product',

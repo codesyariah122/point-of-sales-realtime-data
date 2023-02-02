@@ -35,13 +35,14 @@ class WebFiturController extends Controller
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 400);
             }
-            $d = new DNS1D;
-            $barcode = $d->getBarCodeHTML($request->barcode.' - '.$request->name, 'C39');
+            // $d = new DNS1D;
+            // $d->setStorPath(__DIR__.'/cache/');
+            $barcode = DNS1D::getBarcodePNG($request->barcode.' - '.$request->name, 'C39+');
 
             if($barcode) {
                 return response()->json([
                     'success' => true,
-                    'data' => $barcode
+                    'data' => "data:image/png;base64, {$barcode}"
                 ]);
             }
 
