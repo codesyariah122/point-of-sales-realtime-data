@@ -1,0 +1,68 @@
+codot product list
+
+
+Anggur : 
+Red globe china
+Red globe AUSI
+Red globe USA
+Anggur sunmuscat
+Anggur sweet safir
+Anggur autum royal AUSI
+Anggur autum china
+Anggur hijau thomshon AUSI
+Anggur hijau calmeria AUSI
+Anggur hijau china
+Anggur autum Afrika Size L,XL,XXL
+Anggur hijau Afrika Size L,XL,XXL 
+Red globe Afrika Size L,XL,XXL
+Red globe chile Size L,XL,J,JJ,JJJ
+
+Pear : 
+Pear yalie Size 80,96,112
+Pear Century Size 60,80
+Pear singo Size 24,28,32
+Pear golden Size 24,28,32
+Pear shandong Size 54,60,66
+Pear causulie 80,96,112
+Pear packham Ausi Size 70,80,90
+Pear packham Afrika Size 54,60,66,72
+
+Lengkeng: 
+Lengkeng Thailand Size hijau,biru,merah,emas
+
+Jeruk: 
+J.kinnow Size 54,60,66,72
+J.murcot Ausi 54,60,66,72
+J.Santang dongfang
+J.Santang daun
+J.Santang nanfeng
+J.Santang madu asli
+J.Santang birma
+J.ponkam Size SS,S,M,L
+J.Wogan Size 54,60,66,72
+J.Valencia Afrika Size 56,72,80,88
+J.Navel Afrika Size 56,72,80,88
+J.Valencia USA Size 56,72,80,88
+J.navel USU Size 56,72,80,88
+J.Valencia China Size 56,72,80,88
+J.navel china Size 56,72,80,88
+
+Apel : 
+Apel fuji blush size 54,60,66,72,88,100
+Apel fuji size 72,80,88,100,113,125,138,150,163,175
+Apel red Dell USA size 125,138,150,163,175
+Apel red star size 88,100,125,138,150,163,175
+Apel qingguan size 88,100,113,125,138,150,163,175
+Apel huaniu Size 88,100,113,125,138,150,163,175
+Apel GS china Size 100,113,125,138,150,163,175
+Apel GS USA Size 113,125,138,150
+Apel royal gala China Size 100,113,125,138,150,163
+Apel royal gala USA Size 100,113,125,138,150,163
+Apel Pasifik Rose Size 100,113,125,138,150
+
+
+icon:
+apel : &#127822;
+anggur : &#127815;
+jeruk : &#127818;
+pear : &#127824;

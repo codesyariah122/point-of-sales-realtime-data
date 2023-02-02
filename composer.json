@@ -13,6 +13,8 @@
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.4",
+        "milon/barcode": "^10.0",
+        "picqer/php-barcode-generator": "^2.2",
         "pusher/pusher-php-server": "^7.2"
     },
     "require-dev": {

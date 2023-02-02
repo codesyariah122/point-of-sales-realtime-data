@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\Fitur;
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\{LoginController, RegisterController};
-use App\Http\Controllers\Api\Dashboard\{RolesManagement, UserManagement, UserRoleManageController, MenuManagement, SubMenuManagement, UserAccessMenuController};
+use App\Http\Controllers\Api\Dashboard\{RolesManagement, UserManagement, UserRoleManageController, MenuManagement, SubMenuManagement, UserAccessMenuController, ProductManagement, CategoryManagement};
 
 /*
 |--------------------------------------------------------------------------
@@ -27,6 +27,13 @@ Route::middleware('auth:api')->prefix('v1/fitur')->group(function () {
     Route::post('/access-menu', [UserAccessMenuController::class, 'user_access_menu']);
     Route::get('/access-menu', [UserAccessMenuController::class, 'access_menu_list']);
     Route::post('/user-role', [UserRoleManageController::class, 'user_role']);
+
+    // Product
+    Route::resource('/category-management', CategoryManagement::class);
+    Route::resource('/product-management', ProductManagement::class);
+
+    // Barcode fitur
+    Route::post('/barcode', [WebFiturController::class, 'barcode_fitur']);
 });
 
 Route::prefix('v1/auth')->group(function () {

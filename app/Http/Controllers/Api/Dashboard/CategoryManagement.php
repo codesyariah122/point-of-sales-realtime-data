@@ -3,34 +3,26 @@
 namespace App\Http\Controllers\Api\Dashboard;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
-use App\Models\Menu;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+use App\Models\Category;
 
-class MenuManagement extends Controller
+class CategoryManagement extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware(function ($request, $next) {
-            if (Gate::allows('menu-management')) return $next($request);
-            abort(403, 'Anda tidak memiliki cukup hak akses');
-        });
-    }
-
     public function index()
     {
         try {
-            $menu = Menu::all();
+            $categories = Category::paginate(10);
+
             return response()->json([
-                'message' => 'List all menu',
-                'data' => $menu
+                'message' => 'List categories product data',
+                'data' => $categories
             ]);
         } catch (\Throwable $th) {
             throw $th;
@@ -57,27 +49,31 @@ class MenuManagement extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'menu' => 'required'
+                'name' => 'required',
             ]);
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 400);
             }
 
-            $check_already = Menu::whereMenu($request->menu)->get();
-            if (count($check_already) > 0) {
+            $check_ready = Category::whereName($request->name)->get();
+
+            if(count($check_ready) > 0) {
                 return response()->json([
-                    'message' => "{$request->menu}, sudah tersedia!"
+                    'message' => "{$request->name}, its already taken!"
                 ]);
             }
-            $menu = new Menu;
-            $menu->menu = $request->menu;
-            $menu->roles = json_decode($request->roles);
-            $menu->save();
+
+            $new_category = new Category;
+            $new_category->code = 'CAT-'.Str::random(10);
+            $new_category->name = $request->name;
+            $new_category->icon = $request->icon;
+            $new_category->save();
 
             return response()->json([
-                'message' => 'Added new menu',
-                'data' => $menu
+                'message' => 'added new product',
+                'data' => $new_category
             ]);
+
         } catch (\Throwable $th) {
             throw $th;
         }
