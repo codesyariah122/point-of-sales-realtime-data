@@ -24,6 +24,8 @@ Route::middleware('auth:api')->prefix('v1/fitur')->group(function () {
     Route::resource('/user-management', UserManagement::class);
     Route::get('/trashed', [WebFiturController::class, 
         'trash']);
+    Route::put('/trashed/{id}', [WebFiturController::class, 'restoreTrash']);
+    Route::delete('/trashed/{id}', [WebFiturController::class, 'deletePermanently']);
 
     // Role management
     Route::resource('/role-management', RolesManagement::class);

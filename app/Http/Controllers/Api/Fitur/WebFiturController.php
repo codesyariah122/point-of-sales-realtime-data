@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Resources\ContextData;
 use \Milon\Barcode\DNS1D;
 use App\Models\User;
 use App\Models\Product;
+use App\Events\EventNotification;
 
 class WebFiturController extends Controller
 {
@@ -37,8 +38,7 @@ class WebFiturController extends Controller
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 400);
             }
-            // $d = new DNS1D;
-            // $d->setStorPath(__DIR__.'/cache/');
+          
             $barcode = DNS1D::getBarcodePNG($request->barcode.' - '.$request->name, 'C39+');
 
             if($barcode) {
@@ -77,6 +77,84 @@ class WebFiturController extends Controller
 
             return response()->json([
                 'message' => 'Deleted data on trashed!',
+                'data' => $deleted
+            ]);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public function restoreTrash(Request $request, $id)
+    {
+        try {
+            $dataType = $request->query('type');
+            switch($dataType):
+                case 'USER_DATA':
+                    $deleted = User::withTrashed()
+                        ->where('id', $id);
+                    $deleted->restore();
+                    $restored = User::findOrFail($id);
+                    
+                    $data_event = [
+                        'notif' => "{$restored->name}, has been restored!",
+                        'data' => $restored
+                    ];
+
+                    event(new EventNotification($data_event));
+                break;
+
+                case 'PRODUCT_DATA':
+                    $deleted = Product::onlyTrashed()
+                        ->where('id', $id);
+                    $deleted->restore();
+                    $restored = Product::findOrFail($id);
+                    $data_event = [
+                        'notif' => "{$restored->name}, has been restored!",
+                        'data' => $restored
+                    ];
+
+                    event(new EventNotification($data_event));
+                break;
+
+                default:
+                    $restored = [];
+            endswitch;
+
+            return response()->json([
+                'message' => 'Restored data on trashed Success!',
+                'data' => $restored
+            ]);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public function deletePermanently(Request $request, $id)
+    {
+        try {
+            $dataType = $request->query('type');
+            switch($dataType):
+                case 'USER_DATA':
+                    $deleted = User::onlyTrashed()
+                        ->where('id', $id)->first();
+                    $deleted->roles()->delete();
+                    $deleted->forceDelete();
+                break;
+
+                case 'PRODUCT_DATA':
+                    $deleted = Product::onlyTrashed()
+                        ->where('id', $id)->first();
+                        $deleted->categories()->delete();
+                    $deleted->delete();
+                break;
+
+                default:
+                    $deleted = [];
+            endswitch;
+
+            return response()->json([
+                'message' => 'Deleted data on trashed Success!',
                 'data' => $deleted
             ]);
         } catch (\Throwable $th) {
