@@ -116,7 +116,17 @@ class ProductManagement extends Controller
      */
     public function show($id)
     {
-        //
+        try {
+            $product = Product::find($id)
+                ->with('categories')
+                ->first();
+            return response()->json([
+                'message' => "Detailed {$product->name}",
+                'data' => $product
+            ]);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
 
     /**
