@@ -17,11 +17,15 @@ class ProductManagement extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
+            $name = $request->query('name');
+            $barcode = $request->query('barcode');
             $products = Product::whereNull('deleted_at')
                 ->with('categories')
+                ->where('name', 'LIKE', '%'.$name.'%')
+                ->where('barcode', 'LIKE', '%'.$barcode.'%')
                 ->paginate(5);
 
             return response()->json([
