@@ -16,6 +16,6 @@ class Category extends Model
 
     public function products()
     {
-        return $this->hasMany('App\Models\Product')->withTrashed();
+        return $this->belongsToMany('App\Models\Product')->withTrashed();
     }
 }
