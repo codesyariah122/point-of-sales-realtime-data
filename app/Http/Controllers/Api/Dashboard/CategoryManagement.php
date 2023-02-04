@@ -18,7 +18,7 @@ class CategoryManagement extends Controller
     public function index()
     {
         try {
-            $categories = Category::paginate(10);
+            $categories = Category::whereNull('deleted_at')->get();
 
             return response()->json([
                 'message' => 'List categories product data',

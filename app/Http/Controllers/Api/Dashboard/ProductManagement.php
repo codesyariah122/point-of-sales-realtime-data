@@ -26,6 +26,8 @@ class ProductManagement extends Controller
                 ->with('categories')
                 ->where('name', 'LIKE', '%'.$name.'%')
                 ->where('barcode', 'LIKE', '%'.$barcode.'%')
+                ->latest()
+                // ->orderBy('id', 'DESC')
                 ->paginate(5);
 
             return response()->json([
@@ -58,7 +60,7 @@ class ProductManagement extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
-                'size' => 'required',
+                // 'size' => 'required',
                 'buy_price' => 'required|integer',
                 'sell_price' => 'required|integer',
                 'stock' => 'required'
@@ -72,6 +74,7 @@ class ProductManagement extends Controller
 
             if(count($check_product) > 0) {
                 return response()->json([
+                    'success' => false,
                     'message' => "Product {$request->name}, its already been taken!"
                 ]);
             }
@@ -99,6 +102,7 @@ class ProductManagement extends Controller
             event(new EventNotification($data_event));
 
             return response()->json([
+                'success' => true,
                 'message' => 'added new product',
                 'data' => $new_productAdd
             ]);
