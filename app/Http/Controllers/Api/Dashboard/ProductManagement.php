@@ -118,13 +118,14 @@ class ProductManagement extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($barcode)
     {
         try {
-            $product = Product::find($id)
+            $product = Product::whereBarcode($barcode)
                 ->with('categories')
                 ->first();
             return response()->json([
+                'success' => true,
                 'message' => "Detailed {$product->name}",
                 'data' => $product
             ]);
