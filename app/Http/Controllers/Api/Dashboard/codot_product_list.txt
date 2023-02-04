@@ -14,8 +14,8 @@ Anggur hijau calmeria AUSI
 Anggur hijau china
 Anggur autum Afrika Size L,XL,XXL
 Anggur hijau Afrika Size L,XL,XXL 
-Red globe Afrika Size L,XL,XXL
-Red globe chile Size L,XL,J,JJ,JJJ
+Red globe Afrika Size ['L','XL','XXL']
+Red globe chile Size ['L','XL','J','JJ','JJJ']
 
 Pear : 
 Pear yalie Size 80,96,112

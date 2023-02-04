@@ -14,6 +14,10 @@ class Product extends Model
     
     protected $table = 'products';
 
+    protected $fillable = [
+        'name'
+    ];
+
     public function categories()
     {
         return $this->belongsToMany('App\Models\Category')->withTrashed();

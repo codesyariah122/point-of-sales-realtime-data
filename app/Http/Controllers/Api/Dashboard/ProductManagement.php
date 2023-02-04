@@ -124,6 +124,7 @@ class ProductManagement extends Controller
             $product = Product::whereBarcode($barcode)
                 ->with('categories')
                 ->first();
+            
             return response()->json([
                 'success' => true,
                 'message' => "Detailed {$product->name}",
@@ -152,9 +153,52 @@ class ProductManagement extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $barcode)
     {
-        //
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required',
+                'buy_price' => 'required|integer',
+                'sell_price' => 'required|integer',
+                'stock' => 'required'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 400);
+            }
+
+
+            $prepare_product = Product::whereBarcode($barcode)->first();
+            // var_dump($prepare_product); die;
+            $prepare_product->name = $request->name;
+            $prepare_product->size = json_encode($request->size);
+            $prepare_product->buy_price = $request->buy_price;
+            $prepare_product->sell_price = $request->sell_price;
+            $prepare_product->stock = $request->stock;
+            $prepare_product->save();
+
+            $update_categoryId = $request->category_id;
+            $prepare_product->categories()->sync($update_categoryId);
+
+            $product_hasUpdate = Product::with('categories')
+                ->findOrFail($prepare_product->id);
+
+            $data_event = [
+                'notif' => "{$product_hasUpdate->name}, berhasil di tambahkan!",
+                'data' => $product_hasUpdate
+            ];
+
+            event(new EventNotification($data_event));
+            
+            return response()->json([
+                'success' => true,
+                'message' => "Success updated {$prepare_product->name}",
+                'data' => $product_hasUpdate
+            ]);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
 
     /**
