@@ -20,8 +20,11 @@ use App\Http\Controllers\Api\Dashboard\{RolesManagement, UserManagement, UserRol
 
 Route::middleware('auth:api')->prefix('v1/fitur')->group(function () {
     Route::get('/user-login', [LoginController::class, 'userIsLogin']);
+    
     // User management
     Route::resource('/user-management', UserManagement::class);
+
+    // Trashed data
     Route::get('/trashed', [WebFiturController::class, 
         'trash']);
     Route::put('/trashed/{id}', [WebFiturController::class, 'restoreTrash']);

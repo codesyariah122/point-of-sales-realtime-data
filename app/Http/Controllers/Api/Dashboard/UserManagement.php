@@ -13,6 +13,7 @@ use App\Models\Profile;
 use App\Models\UserRole;
 use App\Events\EventNotification;
 use App\Models\Roles;
+use Auth;
 
 class UserManagement extends Controller
 {
@@ -21,22 +22,22 @@ class UserManagement extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware(function ($request, $next) {
-            if (Gate::allows('user-management')) return $next($request);
-            abort(403, 'Anda tidak memiliki cukup hak akses');
-        });
-    }
+    // public function __construct()
+    // {
+    //     $this->middleware('auth');
+    //     $this->middleware(function ($request, $next) {
+    //         if (Gate::allows('user-management')) return $next($request);
+    //         abort(403, 'Anda tidak memiliki cukup hak akses');
+    //     });
+    // }
 
     public function index()
     {
         try {
             $users = User::whereNull('deleted_at')
-                ->with('profiles')
-                ->with('roles')
-                ->get();
+            ->with('profiles')
+            ->with('roles')
+            ->get();
             return response()->json([
                 'message' => 'User data lists',
                 'data' => $users
@@ -70,10 +71,10 @@ class UserManagement extends Controller
                 'email' => 'required|email|unique:users,email',
                 'password'  => [
                     'required', Password::min(8)
-                        ->mixedCase()
-                        ->letters()
-                        ->numbers()
-                        ->symbols()
+                    ->mixedCase()
+                    ->letters()
+                    ->numbers()
+                    ->symbols()
                 ],
                 'roles' => 'required',
                 'status' => 'required',
@@ -109,9 +110,9 @@ class UserManagement extends Controller
                 $role_user->save();
 
                 $add_new_user = User::whereId($new_user->id)
-                    ->with('profiles')
-                    ->with('roles')
-                    ->get();
+                ->with('profiles')
+                ->with('roles')
+                ->get();
 
                 $data_event = [
                     'notif' => "{$add_new_user[0]->name}, berhasil di tambahkan!",
@@ -146,9 +147,9 @@ class UserManagement extends Controller
     {
         try {
             $user_detail = User::whereId($id)
-                ->with('profiles')
-                ->with('roles')
-                ->get();
+            ->with('profiles')
+            ->with('roles')
+            ->get();
 
             if (count($user_detail) % 2 == 1) {
                 return response()->json([
@@ -186,6 +187,14 @@ class UserManagement extends Controller
     public function update(Request $request, $id)
     {
         try {
+            $roles = json_decode($request->user()->roles[0]->roles);
+            if($roles[0] !== "OWNER" || $roles[0] !== "ADMIN") {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Roles $roles[0], tidak di ijinkan menghapus data"
+                ]);
+            }
+
             $user = User::with('profiles')->find($id);
 
             $validator = Validator::make($request->all(), [
@@ -193,10 +202,10 @@ class UserManagement extends Controller
                 'email' => 'required|email|unique:users,email',
                 'password'  => [
                     'required', Password::min(8)
-                        ->mixedCase()
-                        ->letters()
-                        ->numbers()
-                        ->symbols()
+                    ->mixedCase()
+                    ->letters()
+                    ->numbers()
+                    ->symbols()
                 ],
                 'roles' => 'required',
                 'status' => 'required',
@@ -244,9 +253,18 @@ class UserManagement extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         try {
+            $user = $request->user();
+            $roles = json_decode($request->user()->roles[0]->roles);
+            if($roles[0] !== "OWNER" || $roles[0] !== "ADMIN") {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Roles $roles[0], tidak di ijinkan menghapus data"
+                ]);
+            }
+
             $delete_user = User::findOrFail($id);
             $delete_user->profiles()->delete();
             $delete_user->delete();

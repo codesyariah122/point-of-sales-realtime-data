@@ -234,9 +234,17 @@ class ProductManagement extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         try {
+            $roles = json_decode($request->user()->roles[0]->roles);
+            if($roles[0] !== "OWNER" || $roles[0] !== "ADMIN") {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Roles $roles[0], tidak di ijinkan menghapus data"
+                ]);
+            }
+
             $delete_product = Product::findOrFail($id);
             $delete_product->categories()->delete();
             $delete_product->delete();
