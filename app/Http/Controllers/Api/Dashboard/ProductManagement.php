@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use App\Models\Product;
+use App\Models\Category;
 use Piqer\Barcode;
 use App\Events\EventNotification;
 
@@ -21,9 +22,9 @@ class ProductManagement extends Controller
     public function read(Message $message)
     {
         $message->markAsRead();
-        
+
         RateLimiter::clear('send-message:'.$message->user_id);
-        
+
         return $message;
     }
 
@@ -32,13 +33,29 @@ class ProductManagement extends Controller
         try {
             $name = $request->query('name');
             $barcode = $request->query('barcode');
-            $products = Product::whereNull('deleted_at')
+            $category = $request->query('category_id');
+
+            if($category) {
+                $products = Product::whereHas('categories', function($q) use ($category) {
+                    $q->where('category_id', $category);
+                })
                 ->with('categories')
-                ->where('name', 'LIKE', '%'.$name.'%')
-                ->where('barcode', 'LIKE', '%'.$barcode.'%')
                 ->latest()
-                // ->orderBy('id', 'DESC')
                 ->paginate(5);
+                // var_dump($products); die;
+            } else {
+
+                $products = Product::whereNull('deleted_at')
+                    ->with('categories')
+                    ->where('name', 'LIKE', '%'.$name.'%')
+                    ->where('barcode', 'LIKE', '%'.$barcode.'%')
+                    // ->wherePivot('category_id', $category)
+                    ->latest()
+                    // ->orderBy('id', 'DESC')
+                    ->paginate(5);
+            }
+
+
 
             return response()->json([
                 'message' => 'List product data',
