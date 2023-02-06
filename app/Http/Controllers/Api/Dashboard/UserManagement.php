@@ -191,7 +191,7 @@ class UserManagement extends Controller
             if($roles[0] !== "OWNER" || $roles[0] !== "ADMIN") {
                 return response()->json([
                     'success' => false,
-                    'message' => "Roles $roles[0], tidak di ijinkan menghapus data"
+                    'message' => "Roles $roles[0], tidak di ijinkan mengupdate data"
                 ]);
             }
 

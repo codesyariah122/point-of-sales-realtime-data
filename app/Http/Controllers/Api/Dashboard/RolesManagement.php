@@ -19,15 +19,15 @@ class RolesManagement extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware(function ($request, $next) {
-            if (Gate::allows('role-management')) return $next($request);
+    // public function __construct()
+    // {
+    //     $this->middleware('auth');
+    //     $this->middleware(function ($request, $next) {
+    //         if (Gate::allows('role-management')) return $next($request);
 
-            abort(403, 'Anda tidak memiliki cukup hak akses');
-        });
-    }
+    //         abort(403, 'Anda tidak memiliki cukup hak akses');
+    //     });
+    // }
 
     public function index()
     {
