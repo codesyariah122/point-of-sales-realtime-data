@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Dashboard;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use App\Models\Product;
 use Piqer\Barcode;
@@ -17,6 +18,15 @@ class ProductManagement extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function read(Message $message)
+    {
+        $message->markAsRead();
+        
+        RateLimiter::clear('send-message:'.$message->user_id);
+        
+        return $message;
+    }
+
     public function index(Request $request)
     {
         try {
@@ -121,14 +131,14 @@ class ProductManagement extends Controller
     public function show($barcode)
     {
         try {
-            $product = Product::whereBarcode($barcode)
-                ->with('categories')
-                ->first();
+            $product = Product::where('barcode', $barcode)->with('categories')->get();
+
+            // var_dump($product); die;
             
             return response()->json([
                 'success' => true,
-                'message' => "Detailed {$product->name}",
-                'data' => $product
+                'message' => "Detailed {$product[0]->name}",
+                'data' => $product[0]
             ]);
         } catch (\Throwable $th) {
             throw $th;
@@ -214,7 +224,7 @@ class ProductManagement extends Controller
             $delete_product->categories()->delete();
             $delete_product->delete();
 
-             $data_event = [
+            $data_event = [
                 'notif' => "{$delete_product->name}, berhasil di hapus!",
                 'data' => $delete_product
             ];
