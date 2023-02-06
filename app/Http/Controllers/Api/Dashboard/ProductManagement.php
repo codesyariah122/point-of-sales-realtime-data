@@ -194,6 +194,13 @@ class ProductManagement extends Controller
                 return response()->json($validator->errors(), 400);
             }
 
+            $roles = json_decode($request->user()->roles[0]->roles);
+            if($roles[0] !== "OWNER" || $roles[0] !== "ADMIN") {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Roles $roles[0], tidak di ijinkan menghapus data"
+                ]);
+            }
 
             $prepare_product = Product::whereBarcode($barcode)->first();
             // var_dump($prepare_product); die;
