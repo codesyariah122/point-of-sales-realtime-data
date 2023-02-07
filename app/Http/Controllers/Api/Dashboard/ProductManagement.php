@@ -97,6 +97,14 @@ class ProductManagement extends Controller
                 return response()->json($validator->errors(), 400);
             }
 
+            $roles = json_decode($request->user()->roles[0]->roles);
+            if($roles[0] !== "OWNER" || $roles[0] !== "ADMIN") {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Roles $roles[0], tidak di ijinkan mengupdate data"
+                ]);
+            }
+
             $check_product = Product::whereName($request->name)->get();
 
             if(count($check_product) > 0) {
@@ -195,7 +203,7 @@ class ProductManagement extends Controller
             }
 
             $roles = json_decode($request->user()->roles[0]->roles);
-            if($roles[0] !== "OWNER" || $roles[0] !== "ADMIN") {
+            if($roles[0] !== "OWNER" && $roles[0] !== "ADMIN") {
                 return response()->json([
                     'success' => false,
                     'message' => "Roles $roles[0], tidak di ijinkan mengupdate data"
@@ -245,7 +253,7 @@ class ProductManagement extends Controller
     {
         try {
             $roles = json_decode($request->user()->roles[0]->roles);
-            if($roles[0] !== "OWNER" || $roles[0] !== "ADMIN") {
+            if($roles[0] !== "OWNER" && $roles[0] !== "ADMIN") {
                 return response()->json([
                     'success' => false,
                     'message' => "Roles $roles[0], tidak di ijinkan menghapus data"

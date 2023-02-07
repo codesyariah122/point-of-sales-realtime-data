@@ -84,6 +84,14 @@ class UserManagement extends Controller
                 return response()->json($validator->errors(), 400);
             }
 
+            $roles = json_decode($request->user()->roles[0]->roles);
+            if($roles[0] !== "OWNER" || $roles[0] !== "ADMIN") {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Roles $roles[0], tidak di ijinkan mengupdate data"
+                ]);
+            }
+
             $role_id = $request->roles;
             $check_user_role = Roles::whereId($role_id)->get();
 
