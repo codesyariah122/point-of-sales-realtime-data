@@ -261,7 +261,7 @@ class ProductManagement extends Controller
             }
 
             $delete_product = Product::findOrFail($id);
-            $delete_product->categories()->delete();
+            $delete_product->delete();
             $delete_product->delete();
 
             $data_event = [
