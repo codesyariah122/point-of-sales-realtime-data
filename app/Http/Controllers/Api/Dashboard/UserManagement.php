@@ -266,7 +266,7 @@ class UserManagement extends Controller
         try {
             $user = $request->user();
             $roles = json_decode($request->user()->roles[0]->roles);
-            if($roles[0] !== "OWNER" || $roles[0] !== "ADMIN") {
+            if($roles[0] === "CASHIER") {
                 return response()->json([
                     'success' => false,
                     'message' => "Roles $roles[0], tidak di ijinkan menghapus data"

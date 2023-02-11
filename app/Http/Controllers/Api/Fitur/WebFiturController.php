@@ -161,4 +161,56 @@ class WebFiturController extends Controller
             throw $th;
         }
     }
+
+    public function totalTrash(Request $request)
+    {
+        try {
+            $type = $request->query('type');
+            switch($type) {
+                case 'USER_DATA':
+                    $countTrash = User::onlyTrashed()
+                        ->get();
+                break;
+                case 'PRODUCT_DATA':
+                    $countTrash = Product::onlyTrashed()->get();
+                break;
+                default:
+                    $countTrash = [];
+            }
+            
+            return response()
+                ->json([
+                    'message' => 'All user trash',
+                    'data' => count($countTrash)
+                ]);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public function totalData(Request $request)
+    {
+        try {
+            $type = $request->query('type');
+            switch($type) {
+                case "TOTAL_USER":
+                    $totalData = User::all();
+                break;
+
+                case 'TOTAL_PRODUCT':
+                    $totalData = Product::all();
+                break;
+                default:
+                    $totalData = [];
+            }
+
+            return response()
+                ->json([
+                    'message' => "Total {$type}",
+                    'data' => count($totalData)
+                ]);
+        } catch(\Throwable $th) {
+            throw $th;
+        }
+    }
 }
