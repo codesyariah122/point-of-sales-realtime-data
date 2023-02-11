@@ -265,7 +265,7 @@ class ProductManagement extends Controller
             $delete_product->delete();
 
             $data_event = [
-                'notif' => "{$delete_product->name}, berhasil di hapus!",
+                'notif' => "{$delete_product->name}, success move to trash, please check trash!",
                 'data' => $delete_product
             ];
 
@@ -273,7 +273,7 @@ class ProductManagement extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "Product {$delete_product->name} berhasil di hapus",
+                'message' => "Product {$delete_product->name} success move to trash, please check trash",
                 'data' => $delete_product
             ]);
         }catch (\Throwable $th) {

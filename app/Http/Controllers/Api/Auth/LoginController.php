@@ -48,7 +48,8 @@ class LoginController extends Controller
                 return response()->json($validator->errors(), 400);
             }
 
-            $user = User::where('email', $request->email)->get();
+            $user = User::whereNull('deleted_at')
+                ->where('email', $request->email)->get();
 
 
             if (count($user) === 0) {

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Api\Resources\ContextData;
 use \Milon\Barcode\DNS1D;
+use \Milon\Barcode\DNS2D;
 use App\Models\User;
 use App\Models\Product;
 use App\Events\EventNotification;
@@ -45,6 +46,32 @@ class WebFiturController extends Controller
                 return response()->json([
                     'success' => true,
                     'data' => "data:image/png;base64, {$barcode}"
+                ]);
+            }
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public function qrcode_fitur(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'barcode' => 'required',
+                'name' => 'required'
+            ]);
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 400);
+            }
+          
+            $qr = new DNS2D;
+            $qrCode = $qr->getBarcodeHTML($request->barcode.'-'.$request->name, 'QRCODE', 4,4);
+
+            if($qrCode) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $qrCode
                 ]);
             }
 
@@ -194,11 +221,19 @@ class WebFiturController extends Controller
             $type = $request->query('type');
             switch($type) {
                 case "TOTAL_USER":
-                    $totalData = User::all();
+                    $totalData = User::whereNull('deleted_at')->get();
                 break;
 
                 case 'TOTAL_PRODUCT':
-                    $totalData = Product::all();
+                    $totalData = Product::whereNull('deleted_at')->get();
+                    // $products = Product::whereNull('deleted_at')
+                    //     ->with('categories')
+                    //     ->get();
+                    // foreach($products as $product) {
+                    //     foreach($product->categories as $category) {
+                    //         echo $category->name."\n";
+                    //     }
+                    // }
                 break;
                 default:
                     $totalData = [];

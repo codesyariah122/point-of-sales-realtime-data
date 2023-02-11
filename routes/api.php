@@ -47,6 +47,7 @@ Route::middleware('auth:api')->prefix('v1/fitur')->group(function () {
 
     // Barcode fitur
     Route::post('/barcode', [WebFiturController::class, 'barcode_fitur']);
+    Route::post('/qrcode', [WebFiturController::class, 'qrcode_fitur']);
 
     // Trash data
     Route::get('/total-trash', [WebFiturController::class, 'totalTrash']);
