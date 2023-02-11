@@ -11,6 +11,7 @@ use \Milon\Barcode\DNS2D;
 use App\Models\User;
 use App\Models\Product;
 use App\Events\EventNotification;
+use App\Http\Controllers\Api\Resources\ProductPercentage;
 
 class WebFiturController extends Controller
 {
@@ -221,29 +222,45 @@ class WebFiturController extends Controller
             $type = $request->query('type');
             switch($type) {
                 case "TOTAL_USER":
-                    $totalData = User::whereNull('deleted_at')->get();
+                    $totalData = User::whereNull('deleted_at')
+                        ->get();
+                    $totals = count($totalData);
                 break;
 
                 case 'TOTAL_PRODUCT':
                     $totalData = Product::whereNull('deleted_at')->get();
-                    // $products = Product::whereNull('deleted_at')
-                    //     ->with('categories')
-                    //     ->get();
-                    // foreach($products as $product) {
-                    //     foreach($product->categories as $category) {
-                    //         echo $category->name."\n";
-                    //     }
-                    // }
+                    $totals = count($totalData);
+                    $productPercent = new ProductPercentage;
+                    $Apel = $productPercent->getPercentage('Apel', $totals);
+                    $Anggur = $productPercent->getPercentage('Anggur', $totals);
+                    $Jeruk = $productPercent->getPercentage('Jeruk', $totals);
+                    $Pear = $productPercent->getPercentage('Pear', $totals);
+                    $Lengkeng = $productPercent->getPercentage('Lengkeng', $totals);
                 break;
+
                 default:
                     $totalData = [];
             }
 
-            return response()
+            if($type == "TOTAL_PRODUCT")
+                return response()
                 ->json([
                     'message' => "Total {$type}",
-                    'data' => count($totalData)
+                    'total' => $totals,
+                    'percentage' => [
+                        'Apel' => $Apel,
+                        'Anggur' => $Anggur,
+                        'Jeruk' => $Jeruk,
+                        'Pear' => $Pear,
+                        'Lengkeng' => $Lengkeng
+                    ]
                 ]);
+
+            return response()
+            ->json([
+                'message' => "Total {$type}",
+                'total' => $totals
+            ]);
         } catch(\Throwable $th) {
             throw $th;
         }
