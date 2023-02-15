@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use App\Models\Category;
+use App\Events\EventNotification;
 
 class CategoryManagement extends Controller
 {
@@ -18,7 +19,8 @@ class CategoryManagement extends Controller
     public function index()
     {
         try {
-            $categories = Category::whereNull('deleted_at')->get();
+            $categories = Category::whereNull('deleted_at')
+                ->paginate(10);
 
             return response()->json([
                 'message' => 'List categories product data',
@@ -119,8 +121,35 @@ class CategoryManagement extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        //
+        try {
+            $roles = json_decode($request->user()->roles[0]->roles);
+            if($roles[0] !== "OWNER" && $roles[0] !== "ADMIN") {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Roles $roles[0], tidak di ijinkan menghapus data"
+                ]);
+            }
+
+            $delete_category = Category::findOrFail($id);
+            $delete_category->delete();
+            $delete_category->delete();
+
+            $data_event = [
+                'notif' => "{$delete_category->name}, success move to trash, please check trash!",
+                'data' => $delete_category
+            ];
+
+            event(new EventNotification($data_event));
+
+            return response()->json([
+                'success' => true,
+                'message' => "Product {$delete_category->name} success move to trash, please check trash",
+                'data' => $delete_category
+            ]);
+        }catch (\Throwable $th) {
+            throw $th;
+        }
     }
 }

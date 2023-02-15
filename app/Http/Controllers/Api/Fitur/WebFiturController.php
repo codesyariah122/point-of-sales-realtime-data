@@ -10,6 +10,7 @@ use \Milon\Barcode\DNS1D;
 use \Milon\Barcode\DNS2D;
 use App\Models\User;
 use App\Models\Product;
+use App\Models\Category;
 use App\Events\EventNotification;
 use App\Helpers\ProductPercentage;
 
@@ -98,6 +99,12 @@ class WebFiturController extends Controller
                         ->paginate(10);
                 break;
 
+                case 'CATEGORY_DATA':
+                    $deleted = Category::onlyTrashed()
+                        ->with('products')
+                        ->paginate(10);
+                break;
+
                 default:
                     $deleted = [];
                 break;
@@ -136,6 +143,19 @@ class WebFiturController extends Controller
                         ->where('id', $id);
                     $deleted->restore();
                     $restored = Product::findOrFail($id);
+                    $data_event = [
+                        'notif' => "{$restored->name}, has been restored!",
+                        'data' => $restored
+                    ];
+
+                    event(new EventNotification($data_event));
+                break;
+
+                case 'CATEGORY_DATA':
+                    $deleted = Category::onlyTrashed()
+                        ->where('id', $id);
+                    $deleted->restore();
+                    $restored = Category::findOrFail($id);
                     $data_event = [
                         'notif' => "{$restored->name}, has been restored!",
                         'data' => $restored
@@ -202,13 +222,16 @@ class WebFiturController extends Controller
                 case 'PRODUCT_DATA':
                     $countTrash = Product::onlyTrashed()->get();
                 break;
+                case 'CATEGORY_DATA':
+                    $countTrash = Category::onlyTrashed()->get();
+                break;
                 default:
                     $countTrash = [];
             }
             
             return response()
                 ->json([
-                    'message' => 'All user trash',
+                    'message' => $type.' Trash',
                     'data' => count($countTrash)
                 ]);
         } catch (\Throwable $th) {
