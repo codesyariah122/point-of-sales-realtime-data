@@ -5,7 +5,7 @@ namespace App\Helpers;
 use Illuminate\Support\Facades\Gate;
 use App\Models\User;
 
-class FitureHelpers
+class FeatureHelpers
 {
     protected $data = [];
 

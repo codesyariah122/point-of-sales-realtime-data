@@ -6,7 +6,7 @@ use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvid
 use Laravel\Passport\Passport;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use App\Helpers\FitureHelpers;
+use App\Helpers\FeatureHelpers;
 use Auth;
 use App\Models\User;
 use App\Models\Profile;
@@ -70,7 +70,7 @@ class AuthServiceProvider extends ServiceProvider
 
         self::set_data();
 
-        $gates = new FitureHelpers($this->helpers);
+        $gates = new FeatureHelpers($this->helpers);
 
         $gates->GatesAccess();
     }

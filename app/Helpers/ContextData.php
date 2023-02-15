@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Resources;
+namespace App\Helpers;
 
 use App\Models\Profile;
 
