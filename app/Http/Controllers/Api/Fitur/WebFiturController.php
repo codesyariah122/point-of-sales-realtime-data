@@ -197,6 +197,13 @@ class WebFiturController extends Controller
                     $deleted->delete();
                 break;
 
+                case 'CATEGORY_DATA':
+                    $deleted = Category::onlyTrashed()
+                        ->where('id', $id)->first();
+                        $deleted->categories()->delete();
+                    $deleted->delete();
+                break;
+
                 default:
                     $deleted = [];
             endswitch;
@@ -261,11 +268,16 @@ class WebFiturController extends Controller
                     $Lengkeng = $productPercent->getPercentage('Lengkeng', $totals);
                 break;
 
+                case 'TOTAL_CATEGORY':
+                    $totalData = Category::whereNull('deleted_at')->get();
+                    $totals = count($totalData);
+                break;
+
                 default:
                     $totalData = [];
             }
 
-            if($type == "TOTAL_PRODUCT")
+            if($type == "TOTAL_PRODUCT") {
                 return response()
                 ->json([
                     'message' => "Total {$type}",
@@ -278,6 +290,7 @@ class WebFiturController extends Controller
                         'Lengkeng' => $Lengkeng
                     ]
                 ]);
+            }
 
             return response()
             ->json([
