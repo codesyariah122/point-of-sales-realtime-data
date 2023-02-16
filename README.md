@@ -1,4 +1,4 @@
-# Development Rules
+# Development on windows
 ***Adding windows vhost***
 ```
 C:\Windows\System32\drivers\etc\hosts
@@ -9,59 +9,94 @@ Edit on hosts file :
 ```  
 
 
+### If using laradock
+***Adding new line for mysql db***
+on .env file laradock directory
+```DB_HOST=mysql```  
 
-## About Laravel
+**Setup nginx vhost**  
+```
+# cp default.conf your-vhost.conf
+```  
+**Edit nginx vhost file**
+*For example: *
+```
+#server {
+#    listen 80;
+#    server_name laravel.com.co;
+#    return 301 https://laravel.com.co$request_uri;
+#}
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+server {
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+    listen 80;
+    listen [::]:80;
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+    # For https
+    # listen 443 ssl;
+    # listen [::]:443 ssl ipv6only=on;
+    # ssl_certificate /etc/nginx/ssl/default.crt;
+    # ssl_certificate_key /etc/nginx/ssl/default.key;
 
-## Learning Laravel
+    server_name codot.com;
+    root /var/www/cod-ot/public;
+    index index.php index.html index.htm;
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+    location / {
+         try_files $uri $uri/ /index.php$is_args$args;
+    }
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+    location ~ \.php$ {
+        try_files $uri /index.php =404;
+        fastcgi_pass php-upstream;
+        fastcgi_index index.php;
+        fastcgi_buffers 16 16k;
+        fastcgi_buffer_size 32k;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        #fixes timeouts
+        fastcgi_read_timeout 600;
+        include fastcgi_params;
+    }
 
-## Laravel Sponsors
+    location ~ /\.ht {
+        deny all;
+    }
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+    location /.well-known/acme-challenge/ {
+        root /var/www/letsencrypt/;
+        log_not_found off;
+    }
 
-### Premium Partners
+    error_log /var/log/nginx/laravel_error.log;
+    access_log /var/log/nginx/laravel_access.log;
+}
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+```  
 
-## Contributing
+### If Using ubuntu / debian base
+**Edit hostname**
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```
+127.0.0.1       codot.com
+```
 
-## Code of Conduct
+Restart system : ```service network-manager restart```
+Restart nginx laradock : ```docker-compose restart nginx```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Development laravel project inside laradock
+***Using workspace***
 
-## Security Vulnerabilities
+Start laradock : ```docker-compose up -d nginx mysql phpmyadmin workspace```
+Running workspace : ```docker-compose exec workspace bash``` 
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+***Access mysql***  
+```
+docker-compose exec mysql bash
 
-## License
+bash-4.4# mysql -u root -proot
+```  
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+***Accessing phpmyadmin workspace***
+```
+docker-compose exec phpmyadmin bash
+```
