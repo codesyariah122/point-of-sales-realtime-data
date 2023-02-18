@@ -35,7 +35,15 @@ class ProductManagement extends Controller
             $barcode = $request->query('barcode');
             $category = $request->query('category_id');
 
-            if($category) {
+            if($name) {
+                $products = Product::whereNull('deleted_at')
+                    ->with('categories')
+                    ->where('name', 'LIKE', '%'.$name.'%')
+                    // ->wherePivot('category_id', $category)
+                    ->latest()
+                    // ->orderBy('id', 'DESC')
+                    ->paginate(5);
+            } elseif ($category) {
                 $products = Product::whereHas('categories', function($q) use ($category) {
                     $q->where('category_id', $category);
                 })
@@ -47,7 +55,6 @@ class ProductManagement extends Controller
 
                 $products = Product::whereNull('deleted_at')
                     ->with('categories')
-                    ->where('name', 'LIKE', '%'.$name.'%')
                     ->where('barcode', 'LIKE', '%'.$barcode.'%')
                     // ->wherePivot('category_id', $category)
                     ->latest()
@@ -98,7 +105,7 @@ class ProductManagement extends Controller
             }
 
             $roles = json_decode($request->user()->roles[0]->roles);
-            if($roles[0] !== "OWNER" || $roles[0] !== "ADMIN") {
+            if($roles[0] !== "OWNER" && $roles[0] !== "ADMIN") {
                 return response()->json([
                     'success' => false,
                     'message' => "Roles $roles[0], tidak di ijinkan mengupdate data"
@@ -115,7 +122,6 @@ class ProductManagement extends Controller
             }
 
             $new_product = new Product;
-            $new_product->barcode = "PROD-".Str::random(10);
             $new_product->name = $request->name;
             $new_product->size = json_encode($request->size);
             $new_product->buy_price = $request->buy_price;
@@ -123,6 +129,10 @@ class ProductManagement extends Controller
             $new_product->stock = $request->stock;
             $new_product->save();
             $new_productId = $new_product->id;
+            $product_barcode = Product::findOrFail($new_productId);
+            $product_barcode->barcode = $new_productId > 9 ? "PROD-0{$new_productId}" : "PROD-00{$new_productId}";
+            $product_barcode->save();
+
             $new_product->categories()->sync($request->category_id);
 
             $new_productAdd = Product::whereId($new_productId)
