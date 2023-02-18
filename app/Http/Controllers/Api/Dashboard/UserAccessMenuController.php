@@ -10,6 +10,7 @@ use Illuminate\Support\Arr;
 use App\Models\UserAccessMenu;
 use App\Models\User;
 use App\Models\Menu;
+use App\Models\SubMenu;
 
 class UserAccessMenuController extends Controller
 {
@@ -31,15 +32,25 @@ class UserAccessMenuController extends Controller
                 ->get();
             $user_roles = $user_logins[0]->roles[0]->id;
 
-
-            $list_menus = Menu::whereJsonContains('roles', $user_roles)
+            $menus = Menu::whereJsonContains('roles', $user_roles)
+                // ->whereHas('sub_menus', function($role) use ($roles_json) {
+                //     $role->whereJsonContains('roles', $roles_json);
+                // })
+                // ->whereRelation('sub_menus', function($role) use ($user_roles) {
+                //     $role->whereJsonContains('roles', $user_roles);
+                // })
                 ->with('sub_menus')
+                ->get();
+
+            $sub_menus = SubMenu::whereJsonContains('roles', $user_roles)
+                ->with('menus')
                 ->get();
 
             return response()->json([
                 'message' => 'List menu of users',
-                // 'users' => $user_logins,
-                'menus' => $list_menus
+                'users' => $user_logins,
+                'menus' => $menus,
+                // 'sub_menus' => $sub_menus
             ]);
         } catch (\Throwable $th) {
             throw $th;
