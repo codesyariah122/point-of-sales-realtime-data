@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Models\Category;
 use Piqer\Barcode;
 use App\Events\EventNotification;
+use App\Helpers\UserHelpers;
 
 class ProductManagement extends Controller
 {
@@ -19,6 +20,14 @@ class ProductManagement extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    private $helpers;
+
+    public function __construct()
+    {
+        $this->helpers = new UserHelpers;   
+    }
+
+
     public function read(Message $message)
     {
         $message->markAsRead();
@@ -51,7 +60,7 @@ class ProductManagement extends Controller
                 ->latest()
                 ->paginate(5);
                 // var_dump($products); die;
-            } else {
+            } elseif ($barcode) {
 
                 $products = Product::whereNull('deleted_at')
                     ->with('categories')
@@ -60,8 +69,12 @@ class ProductManagement extends Controller
                     ->latest()
                     // ->orderBy('id', 'DESC')
                     ->paginate(5);
+            } else {
+                Product::whereNull('deleted_at')
+                    ->with('categories')
+                    ->latest()
+                    ->paginate(5);
             }
-
 
 
             return response()->json([
@@ -104,13 +117,15 @@ class ProductManagement extends Controller
                 return response()->json($validator->errors(), 400);
             }
 
+            $check_roles = $this->helpers;
             $roles = json_decode($request->user()->roles[0]->roles);
-            if($roles[0] !== "OWNER" && $roles[0] !== "ADMIN") {
+            if($check_roles->checkRoles($request->user())):
                 return response()->json([
                     'success' => false,
-                    'message' => "Roles $roles[0], tidak di ijinkan mengupdate data"
+                    'message' => "Roles {$roles[0]}, tidak di ijinkan mengupdate data"
                 ]);
-            }
+            endif;
+            
 
             $check_product = Product::whereName($request->name)->get();
 
@@ -120,6 +135,9 @@ class ProductManagement extends Controller
                     'message' => "Product {$request->name}, its already been taken!"
                 ]);
             }
+
+            // $tests = json_encode($request->size);
+            // var_dump($tests); die;
 
             $new_product = new Product;
             $new_product->name = $request->name;
@@ -212,13 +230,14 @@ class ProductManagement extends Controller
                 return response()->json($validator->errors(), 400);
             }
 
+            $check_roles = $this->helpers;
             $roles = json_decode($request->user()->roles[0]->roles);
-            if($roles[0] !== "OWNER" && $roles[0] !== "ADMIN") {
+            if($check_roles->checkRoles($request->user())):
                 return response()->json([
                     'success' => false,
-                    'message' => "Roles $roles[0], tidak di ijinkan mengupdate data"
+                    'message' => "Roles {$roles[0]}, tidak di ijinkan mengupdate data"
                 ]);
-            }
+            endif;
 
             $prepare_product = Product::whereBarcode($barcode)->first();
             // var_dump($prepare_product); die;
@@ -262,20 +281,20 @@ class ProductManagement extends Controller
     public function destroy(Request $request, $id)
     {
         try {
+            $check_roles = $this->helpers;
             $roles = json_decode($request->user()->roles[0]->roles);
-            if($roles[0] !== "OWNER" && $roles[0] !== "ADMIN") {
+            if($check_roles->checkRoles($request->user())):
                 return response()->json([
                     'success' => false,
-                    'message' => "Roles $roles[0], tidak di ijinkan menghapus data"
+                    'message' => "Roles {$roles[0]}, tidak di ijinkan mengupdate data"
                 ]);
-            }
+            endif;
 
             $delete_product = Product::findOrFail($id);
             $delete_product->delete();
-            $delete_product->delete();
 
             $data_event = [
-                'notif' => "{$delete_product->name}, success move to trash, please check trash!",
+                'notif' => "{$delete_product['name']}, success move to trash, please check trash!",
                 'data' => $delete_product
             ];
 
@@ -283,7 +302,7 @@ class ProductManagement extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "Product {$delete_product->name} success move to trash, please check trash",
+                'message' => "Product {$delete_product['name']} success move to trash, please check trash",
                 'data' => $delete_product
             ]);
         }catch (\Throwable $th) {

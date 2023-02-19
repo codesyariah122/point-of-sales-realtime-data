@@ -2,7 +2,7 @@
 
 namespace App\Helpers;
 
-
+use Illuminate\Http\Request;
 use App\Models\User;
 
 class UserHelpers
@@ -51,8 +51,8 @@ class UserHelpers
     public function adminEmail()
     {
         $admin = User::where('roles', json_encode(['ADMIN']))
-            ->where('email', env('MAIL_USERNAME'))
-            ->where('status', 'ACTIVE')->first();
+        ->where('email', env('MAIL_USERNAME'))
+        ->where('status', 'ACTIVE')->first();
 
         return $admin;
     }
@@ -62,5 +62,15 @@ class UserHelpers
         $manipulation_email = strpos($user->email, '@');
         $email_domain = substr($user->email, $manipulation_email + 1);
         return $email_domain;
+    }
+
+    public function checkRoles($user)
+    {
+        $roles = json_decode($user->roles[0]->roles);
+        if($roles[0] !== "OWNER" && $roles[0] !== "ADMIN") {
+            return 1;
+        }
+
+        return 0;
     }
 }

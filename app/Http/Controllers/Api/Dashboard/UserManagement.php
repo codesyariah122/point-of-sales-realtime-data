@@ -14,6 +14,7 @@ use App\Models\UserRole;
 use App\Events\EventNotification;
 use App\Models\Roles;
 use Auth;
+use App\Helpers\UserHelpers;
 
 class UserManagement extends Controller
 {
@@ -22,14 +23,18 @@ class UserManagement extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    // public function __construct()
-    // {
-    //     $this->middleware('auth');
-    //     $this->middleware(function ($request, $next) {
-    //         if (Gate::allows('user-management')) return $next($request);
-    //         abort(403, 'Anda tidak memiliki cukup hak akses');
-    //     });
-    // }
+
+    private $helpers;
+
+    public function __construct()
+    {
+        //     $this->middleware('auth');
+        //     $this->middleware(function ($request, $next) {
+        //         if (Gate::allows('user-management')) return $next($request);
+        //         abort(403, 'Anda tidak memiliki cukup hak akses');
+        //     });
+        $this->helpers = new UserHelpers;   
+    }
 
     public function index()
     {
@@ -84,13 +89,14 @@ class UserManagement extends Controller
                 return response()->json($validator->errors(), 400);
             }
 
+            $check_roles = $this->helpers;
             $roles = json_decode($request->user()->roles[0]->roles);
-            if($roles[0] !== "OWNER" || $roles[0] !== "ADMIN") {
+            if($check_roles->checkRoles($request->user())):
                 return response()->json([
                     'success' => false,
-                    'message' => "Roles $roles[0], tidak di ijinkan mengupdate data"
+                    'message' => "Roles {$roles[0]}, tidak di ijinkan mengupdate data"
                 ]);
-            }
+            endif;
 
             $role_id = $request->roles;
             $check_user_role = Roles::whereId($role_id)->get();
@@ -223,6 +229,15 @@ class UserManagement extends Controller
                 return response()->json($validator->errors(), 400);
             }
 
+            $check_roles = $this->helpers;
+            $roles = json_decode($request->user()->roles[0]->roles);
+            if($check_roles->checkRoles($request->user())):
+                return response()->json([
+                    'success' => false,
+                    'message' => "Roles {$roles[0]}, tidak di ijinkan mengupdate data"
+                ]);
+            endif;
+
             $update_user = new User;
             $update_user->name = $request->name;
             $update_user->email = $request->email;
@@ -278,7 +293,7 @@ class UserManagement extends Controller
             $delete_user->delete();
 
             $data_event = [
-                'notif' => "{$delete_user->name}, berhasil di hapus!",
+                'notif' => "{$delete_user['name']}, berhasil di hapus!",
                 'data' => $delete_user
             ];
 
@@ -286,7 +301,7 @@ class UserManagement extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "User {$delete_user->name} berhasil di hapus",
+                'message' => "User {$delete_user['name']} berhasil di hapus",
                 'data' => $delete_user
             ]);
         } catch (\Throwable $th) {

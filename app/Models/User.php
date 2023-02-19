@@ -68,4 +68,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany('App\Models\UserMenu');
     }
+
+    public function orders()
+    {
+        return $this->belongsToMany('App\Models\Order');
+    }
 }

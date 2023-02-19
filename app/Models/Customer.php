@@ -6,15 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Menu extends Model
+class Customer extends Model
 {
     use HasFactory;
     use SoftDeletes;
 
-    protected $casts = ['roles' => 'array'];
 
-    public function sub_menus()
+    public function orders()
     {
-        return $this->belongsToMany('App\Models\SubMenu');
+        return $this->belongsToMany('App\Models\Order');
     }
 }
