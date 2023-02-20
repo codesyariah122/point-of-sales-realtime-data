@@ -76,7 +76,6 @@ class ProductManagement extends Controller
                     ->paginate(5);
             }
 
-
             return response()->json([
                 'message' => 'List product data',
                 'data' => $products

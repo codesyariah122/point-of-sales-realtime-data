@@ -34,7 +34,7 @@ class CustomerManagement extends Controller
         return $message;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         try {
             $name = $request->query('name');

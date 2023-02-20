@@ -11,6 +11,7 @@ use \Milon\Barcode\DNS2D;
 use App\Models\User;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Customer;
 use App\Events\EventNotification;
 use App\Helpers\ProductPercentage;
 
@@ -105,6 +106,11 @@ class WebFiturController extends Controller
                         ->paginate(10);
                 break;
 
+                case 'CUSTOMER_DATA':
+                    $deleted = Customer::onlyTrashed()
+                        ->paginate(10);
+                break;
+
                 default:
                     $deleted = [];
                 break;
@@ -164,6 +170,19 @@ class WebFiturController extends Controller
                     event(new EventNotification($data_event));
                 break;
 
+                case 'CUSTOMER_DATA':
+                    $deleted = Customer::onlyTrashed()
+                        ->where('id', $id);
+                    $deleted->restore();
+                    $restored = Category::findOrFail($id);
+                    $data_event = [
+                        'notif' => "{$restored->name}, has been restored!",
+                        'data' => $restored
+                    ];
+
+                    event(new EventNotification($data_event));
+                break;
+
                 default:
                     $restored = [];
             endswitch;
@@ -204,6 +223,13 @@ class WebFiturController extends Controller
                     $deleted->delete();
                 break;
 
+                case 'CUSTOMER_DATA':
+                    $deleted = Customer::onlyTrashed()
+                        ->where('id', $id)->first();
+                        $deleted->categories()->delete();
+                    $deleted->delete();
+                break;
+
                 default:
                     $deleted = [];
             endswitch;
@@ -232,6 +258,14 @@ class WebFiturController extends Controller
                 case 'CATEGORY_DATA':
                     $countTrash = Category::onlyTrashed()->get();
                 break;
+
+                case 'CUSTOMER_DATA':
+                    $countTrash = Customer::onlyTrashed()
+                        ->get();
+                break;
+
+
+
                 default:
                     $countTrash = [];
             }
@@ -270,6 +304,11 @@ class WebFiturController extends Controller
 
                 case 'TOTAL_CATEGORY':
                     $totalData = Category::whereNull('deleted_at')->get();
+                    $totals = count($totalData);
+                break;
+
+                case 'TOTAL_CUSTOMER':
+                    $totalData = Customer::whereNull('deleted_at')->get();
                     $totals = count($totalData);
                 break;
 
