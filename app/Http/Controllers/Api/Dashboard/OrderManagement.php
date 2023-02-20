@@ -142,9 +142,11 @@ class OrderManagement extends Controller
             $grand_total_order->order_id = $new_order->id;
             $grand_total_order->order_date = Carbon::now();
             $grand_total_order->total_in_orders = json_encode($totals);
-            foreach($totals as $key => $value) {
-                $grand_total_order->totals = $value + $value;
-            }
+            $grand_total_order->totals = $new_order->total;
+            
+            // foreach($totals as $key => $value) {
+            //     $grand_total_order->totals = $value + $value;
+            // }
             
             $grand_total_order->save();
 
