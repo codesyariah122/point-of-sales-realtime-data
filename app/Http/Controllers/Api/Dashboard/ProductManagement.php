@@ -70,7 +70,7 @@ class ProductManagement extends Controller
                     // ->orderBy('id', 'DESC')
                     ->paginate(5);
             } else {
-                Product::whereNull('deleted_at')
+                $products = Product::whereNull('deleted_at')
                     ->with('categories')
                     ->latest()
                     ->paginate(5);
