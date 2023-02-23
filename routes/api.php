@@ -5,8 +5,7 @@ namespace App\Http\Controllers\Api\Fitur;
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\{LoginController, RegisterController};
-use App\Http\Controllers\Api\Dashboard\{RolesManagement, UserManagement, UserRoleManageController, MenuManagement, SubMenuManagement, UserAccessMenuController, ProductManagement, CategoryManagement, CustomerManagement, OrderManagement};
-
+use App\Http\Controllers\Api\Dashboard\{RolesManagement, UserManagement, UserRoleManageController, MenuManagement, SubMenuManagement, UserAccessMenuController, ProductManagement, CategoryManagement, CustomerManagement, OrderManagement, SupplierManagement};
 
 Route::middleware('auth:api')->prefix('v1/fitur')->group(function () {
     Route::get('/user-login', [LoginController::class, 'userIsLogin']);
@@ -38,7 +37,10 @@ Route::middleware('auth:api')->prefix('v1/fitur')->group(function () {
     // Customer
     Route::resource('/customer-management', CustomerManagement::class);
 
-    // Customer
+    // Supplier
+    Route::resource('/supplier-management', SupplierManagement::class);
+
+    // Order
     Route::resource('/order-management', OrderManagement::class);
 
     // Barcode fitur
