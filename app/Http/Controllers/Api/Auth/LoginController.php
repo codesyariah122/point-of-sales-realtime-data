@@ -49,7 +49,7 @@ class LoginController extends Controller
             }
 
             $user = User::whereNull('deleted_at')
-                ->where('email', $request->email)->get();
+            ->where('email', $request->email)->get();
 
 
             if (count($user) === 0) {
@@ -87,10 +87,17 @@ class LoginController extends Controller
                         $user_login->is_login = 1;
 
                         if ($request->remember_me !== NULL) {
-                            $user_login->expires_at = Carbon::now()->addRealDays(7);
+                            $dates = Carbon::parse()->addDays(7);
+
+                            // echo $dates; die;
+
+                            $user_login->expires_at = $dates;
+
                             $user_login->remember_token = Str::random(32);
-                        }
-                        $user_login->expires_at = Carbon::now()->addRealMinutes(60);
+                        } else {
+                           $user_login->expires_at = Carbon::now()->addRealMinutes(60); 
+                       }
+                        
                         $user_login->last_login = Carbon::now();
                         $user_login->save();
                         $user_id = $user_login->id;
@@ -105,10 +112,10 @@ class LoginController extends Controller
                         $user[0]->logins()->sync($login_id);
 
                         $userIsLogin = User::whereId($user_login->id)
-                            ->with('roles')
-                            ->with('profiles')
-                            ->with('logins')
-                            ->get();
+                        ->with('roles')
+                        ->with('profiles')
+                        ->with('logins')
+                        ->get();
 
 
                         $data_event = [
@@ -176,10 +183,10 @@ class LoginController extends Controller
             $user = $request->user();
 
             $user_login = User::whereEmail($user->email)
-                ->with('profiles')
-                ->with('roles')
-                ->with('logins')
-                ->get();
+            ->with('profiles')
+            ->with('roles')
+            ->with('logins')
+            ->get();
             if (count($user_login) > 0) {
                 return response()->json([
                     'message' => 'User data is login',
