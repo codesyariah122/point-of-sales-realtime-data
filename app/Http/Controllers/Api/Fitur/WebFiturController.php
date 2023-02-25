@@ -323,6 +323,7 @@ class WebFiturController extends Controller
     {
         try {
             $type = $request->query('type');
+            
             switch($type) {
                 case "TOTAL_USER":
                     $totalData = User::whereNull('deleted_at')
