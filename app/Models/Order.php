@@ -20,7 +20,7 @@ class Order extends Model
 
     public function customers()
     {
-        return $this->belongsToMany('App\Models\Customer');
+        return $this->belongsToMany('App\Models\Customer')->withTrashed();
     }
 
     public function products()

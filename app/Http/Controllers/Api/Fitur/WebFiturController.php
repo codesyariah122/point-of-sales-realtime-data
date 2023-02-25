@@ -180,7 +180,7 @@ class WebFiturController extends Controller
                     $deleted = Customer::onlyTrashed()
                         ->where('id', $id);
                     $deleted->restore();
-                    $restored = Category::findOrFail($id);
+                    $restored = Customer::findOrFail($id);
                     $data_event = [
                         'notif' => "{$restored->name}, has been restored!",
                         'data' => $restored
@@ -193,7 +193,7 @@ class WebFiturController extends Controller
                     $deleted = Supplier::onlyTrashed()
                         ->where('id', $id);
                     $deleted->restore();
-                    $restored = Category::findOrFail($id);
+                    $restored = Supplier::findOrFail($id);
                     $data_event = [
                         'notif' => "{$restored->name}, has been restored!",
                         'data' => $restored
@@ -232,26 +232,41 @@ class WebFiturController extends Controller
                     $deleted = Product::onlyTrashed()
                         ->where('id', $id)->first();
                         $deleted->categories()->delete();
-                    $deleted->delete();
+                    $deleted->forceDelete();
                 break;
 
                 case 'CATEGORY_DATA':
                     $deleted = Category::onlyTrashed()
                         ->where('id', $id)->first();
                         $deleted->categories()->delete();
-                    $deleted->delete();
+                    $deleted->forceDelete();
                 break;
 
                 case 'CUSTOMER_DATA':
                     $deleted = Customer::onlyTrashed()
+                        ->where('id', $id)
+                        ->first();
+                    $deleted->forceDelete();
+                break;
+
+                case 'SUPPLIER_DATA':
+                    $deleted = Supplier::onlyTrashed()
                         ->where('id', $id)->first();
-                        $deleted->categories()->delete();
-                    $deleted->delete();
+                        $deleted->delete();
+                    $deleted->forceDelete();
                 break;
 
                 default:
                     $deleted = [];
             endswitch;
+
+
+            $data_event = [
+                'notif' => "Data has been restored!",
+                'data' => $deleted
+            ];
+
+            event(new EventNotification($data_event));
 
             return response()->json([
                 'message' => 'Deleted data on trashed Success!',

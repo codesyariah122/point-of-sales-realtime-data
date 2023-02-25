@@ -44,7 +44,10 @@ class UserHelpers
             } elseif (substr(trim($nohp), 0, 1) == '0') {
                 $hp = '62' . substr(trim($nohp), 1);
             }
+        } else {
+            return false;
         }
+        // var_dump($nohp); die;
         return $hp;
     }
 

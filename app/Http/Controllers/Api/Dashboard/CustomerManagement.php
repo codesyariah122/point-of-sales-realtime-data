@@ -87,8 +87,10 @@ class CustomerManagement extends Controller
     public function store(Request $request)
     {
         try {
+            $helper = new UserHelpers;
             $validator = Validator::make($request->all(), [
-                'name' => 'required'
+                'name' => 'required',
+                'phone' => 'numeric|min:12'
             ]);
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 400);
@@ -103,29 +105,38 @@ class CustomerManagement extends Controller
                 ]);
             }
 
-            $new_customer = new Customer;
-            $new_customer->name = $request->name;
-            $new_customer->phone = $request->phone;
-            $new_customer->email = $request->email;
-            $new_customer->address = $request->address;
-            $new_customer->save();
+            $customer_phone = $helper->formatPhoneNumber($request->phone);
+
+            if($customer_phone) {
+                $new_customer = new Customer;
+                $new_customer->name = $request->name;
+                $new_customer->phone = $request->phone ? $helper->formatPhoneNumber($request->phone) : null;
+                $new_customer->email = $request->email;
+                $new_customer->address = $request->address;
+                $new_customer->save();
 
 
-            $new_customerAdd = Customer::whereId($new_customer->id)
-            ->get();
+                $new_customerAdd = Customer::whereId($new_customer->id)
+                ->get();
 
-            $data_event = [
-                'notif' => "{$new_customerAdd[0]->name}, berhasil di tambahkan!",
-                'data' => $new_customerAdd
-            ];
+                $data_event = [
+                    'notif' => "{$new_customerAdd[0]->name}, berhasil di tambahkan!",
+                    'data' => $new_customerAdd
+                ];
 
-            event(new EventNotification($data_event));
+                event(new EventNotification($data_event));
 
-            return response()->json([
-                'success' => true,
-                'message' => 'added new customer',
-                'data' => $new_customerAdd
-            ]);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'added new customer',
+                    'data' => $new_customerAdd
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Phone number it's not valid!"
+                ]);
+            }
 
         } catch (\Throwable $th) {
             throw $th;
