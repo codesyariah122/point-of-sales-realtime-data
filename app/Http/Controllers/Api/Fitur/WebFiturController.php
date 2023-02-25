@@ -224,21 +224,21 @@ class WebFiturController extends Controller
                 case 'USER_DATA':
                     $deleted = User::onlyTrashed()
                         ->where('id', $id)->first();
-                    $deleted->roles()->delete();
+                    // $deleted->roles()->delete();
                     $deleted->forceDelete();
                 break;
 
                 case 'PRODUCT_DATA':
                     $deleted = Product::onlyTrashed()
                         ->where('id', $id)->first();
-                        $deleted->categories()->delete();
+                        // $deleted->categories()->delete();
                     $deleted->forceDelete();
                 break;
 
                 case 'CATEGORY_DATA':
                     $deleted = Category::onlyTrashed()
                         ->where('id', $id)->first();
-                        $deleted->categories()->delete();
+                        // $deleted->categories()->delete();
                     $deleted->forceDelete();
                 break;
 
