@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Customer;
+use App\Models\Supplier;
 use App\Events\EventNotification;
 use App\Helpers\ProductPercentage;
 
@@ -111,6 +112,11 @@ class WebFiturController extends Controller
                         ->paginate(10);
                 break;
 
+                case 'SUPPLIER_DATA':
+                    $deleted = Supplier::onlyTrashed()
+                        ->paginate(10);
+                break;
+
                 default:
                     $deleted = [];
                 break;
@@ -172,6 +178,19 @@ class WebFiturController extends Controller
 
                 case 'CUSTOMER_DATA':
                     $deleted = Customer::onlyTrashed()
+                        ->where('id', $id);
+                    $deleted->restore();
+                    $restored = Category::findOrFail($id);
+                    $data_event = [
+                        'notif' => "{$restored->name}, has been restored!",
+                        'data' => $restored
+                    ];
+
+                    event(new EventNotification($data_event));
+                break;
+
+                case 'SUPPLIER_DATA':
+                    $deleted = Supplier::onlyTrashed()
                         ->where('id', $id);
                     $deleted->restore();
                     $restored = Category::findOrFail($id);
@@ -264,6 +283,11 @@ class WebFiturController extends Controller
                         ->get();
                 break;
 
+                case 'SUPPLIER_DATA':
+                    $countTrash = Supplier::onlyTrashed()
+                        ->get();
+                break;
+
 
 
                 default:
@@ -309,6 +333,11 @@ class WebFiturController extends Controller
 
                 case 'TOTAL_CUSTOMER':
                     $totalData = Customer::whereNull('deleted_at')->get();
+                    $totals = count($totalData);
+                break;
+
+                case 'TOTAL_SUPPLIER':
+                    $totalData = Supplier::whereNull('deleted_at')->get();
                     $totals = count($totalData);
                 break;
 
