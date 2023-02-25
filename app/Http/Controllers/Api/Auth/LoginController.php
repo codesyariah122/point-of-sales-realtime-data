@@ -87,16 +87,12 @@ class LoginController extends Controller
                         $user_login->is_login = 1;
 
                         if ($request->remember_me !== NULL) {
-                            $dates = Carbon::parse()->addDays(7);
-
-                            // echo $dates; die;
-
+                            $dates = Carbon::now()->addDays(7);
                             $user_login->expires_at = $dates;
-
                             $user_login->remember_token = Str::random(32);
                         } else {
                            $user_login->expires_at = Carbon::now()->addRealMinutes(60); 
-                       }
+                        }
                         
                         $user_login->last_login = Carbon::now();
                         $user_login->save();
