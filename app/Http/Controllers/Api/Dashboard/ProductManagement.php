@@ -220,8 +220,8 @@ class ProductManagement extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
-                'buy_price' => 'required|integer',
-                'sell_price' => 'required|integer',
+                // 'buy_price' => 'required|integer',
+                // 'sell_price' => 'required|integer',
                 'stock' => 'required'
             ]);
 

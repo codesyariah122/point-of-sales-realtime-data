@@ -252,7 +252,6 @@ class WebFiturController extends Controller
                 case 'SUPPLIER_DATA':
                     $deleted = Supplier::onlyTrashed()
                         ->where('id', $id)->first();
-                        $deleted->delete();
                     $deleted->forceDelete();
                 break;
 
