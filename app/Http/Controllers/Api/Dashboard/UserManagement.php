@@ -42,6 +42,7 @@ class UserManagement extends Controller
             $users = User::whereNull('deleted_at')
             ->with('profiles')
             ->with('roles')
+            ->orderBy('id', 'DESC')
             ->get();
             return response()->json([
                 'message' => 'User data lists',
@@ -167,6 +168,7 @@ class UserManagement extends Controller
 
             if (count($user_detail) % 2 == 1) {
                 return response()->json([
+                    'success' => true,
                     'message' => 'User detail data',
                     'data' => $user_detail
                 ]);

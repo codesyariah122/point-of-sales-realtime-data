@@ -92,6 +92,7 @@ class CustomerManagement extends Controller
                 'name' => 'required',
                 'phone' => 'numeric|min:12'
             ]);
+            
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 400);
             }
@@ -110,7 +111,7 @@ class CustomerManagement extends Controller
             if($customer_phone) {
                 $new_customer = new Customer;
                 $new_customer->name = $request->name;
-                $new_customer->phone = $request->phone ? $helper->formatPhoneNumber($request->phone) : null;
+                $new_customer->phone = $request->phone ? $helper->formatPhoneNumber($request->phone) : NULL;
                 $new_customer->email = $request->email;
                 $new_customer->address = $request->address;
                 $new_customer->save();
