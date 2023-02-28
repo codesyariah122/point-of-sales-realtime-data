@@ -43,7 +43,8 @@ class UserManagement extends Controller
             ->with('profiles')
             ->with('roles')
             ->orderBy('id', 'DESC')
-            ->get();
+            ->paginate(5);
+            
             return response()->json([
                 'message' => 'User data lists',
                 'data' => $users

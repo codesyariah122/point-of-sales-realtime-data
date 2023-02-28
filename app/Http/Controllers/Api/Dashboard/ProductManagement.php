@@ -186,12 +186,13 @@ class ProductManagement extends Controller
             $product = Product::where('barcode', $barcode)->with('categories')->get();
 
             // var_dump($product); die;
-            
-            return response()->json([
-                'success' => true,
-                'message' => "Detailed {$product[0]->name}",
-                'data' => $product[0]
-            ]);
+            if(count($product) > 0) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "Detailed {$product[0]->name}",
+                    'data' => $product[0]
+                ]);
+            }
         } catch (\Throwable $th) {
             throw $th;
         }
