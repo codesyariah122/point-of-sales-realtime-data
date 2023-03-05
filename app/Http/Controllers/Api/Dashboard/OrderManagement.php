@@ -137,7 +137,7 @@ class OrderManagement extends Controller
             array_push($totals, $request->qty * $productInOrder['buy_price']);
 
             $order_grandTotal = Order::whereInvoiceNumber($new_order->invoice_number)->get();
-            var_dump($order_grandTotal); die;
+            // var_dump($order_grandTotal); die;
 
             $grand_total_order = new GrandTotalOrder;
             $grand_total_order->order_id = $new_order->id;

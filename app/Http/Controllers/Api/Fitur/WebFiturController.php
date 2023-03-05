@@ -13,6 +13,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Supplier;
+use App\Models\Order;
 use App\Events\EventNotification;
 use App\Helpers\ProductPercentage;
 
@@ -62,7 +63,7 @@ class WebFiturController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'barcode' => 'required',
+                'barcode|invoice_number' => 'required',
                 'name' => 'required'
             ]);
             if ($validator->fails()) {
@@ -70,7 +71,7 @@ class WebFiturController extends Controller
             }
           
             $qr = new DNS2D;
-            $qrCode = $qr->getBarcodeHTML($request->barcode.'-'.$request->name, 'QRCODE', 4,4);
+            $qrCode = $qr->getBarcodeHTML($request->barcode ? $request->barcode : $request->invoice_number.'-'.$request->name, 'QRCODE', 4,4);
 
             if($qrCode) {
                 return response()->json([
@@ -114,6 +115,11 @@ class WebFiturController extends Controller
 
                 case 'SUPPLIER_DATA':
                     $deleted = Supplier::onlyTrashed()
+                        ->paginate(10);
+                break;
+
+                case 'ORDER_DATA':
+                    $deleted = Order::onlyTrashed()
                         ->paginate(10);
                 break;
 
@@ -202,6 +208,19 @@ class WebFiturController extends Controller
                     event(new EventNotification($data_event));
                 break;
 
+                case 'ORDER_DATA':
+                    $deleted = Order::onlyTrashed()
+                        ->where('id', $id);
+                    $deleted->restore();
+                    $restored = Order::findOrFail($id);
+                    $data_event = [
+                        'notif' => "{$restored->name}, has been restored!",
+                        'data' => $restored
+                    ];
+
+                    event(new EventNotification($data_event));
+                break;
+
                 default:
                     $restored = [];
             endswitch;
@@ -255,6 +274,12 @@ class WebFiturController extends Controller
                     $deleted->forceDelete();
                 break;
 
+                case 'ORDER_DATA':
+                    $deleted = Order::onlyTrashed()
+                        ->where('id', $id)->first();
+                    $deleted->forceDelete();
+                break;
+
                 default:
                     $deleted = [];
             endswitch;
@@ -302,7 +327,10 @@ class WebFiturController extends Controller
                         ->get();
                 break;
 
-
+                case 'ORDER_DATA':
+                    $countTrash = Order::onlyTrashed()
+                        ->get();
+                break;
 
                 default:
                     $countTrash = [];
@@ -353,6 +381,11 @@ class WebFiturController extends Controller
 
                 case 'TOTAL_SUPPLIER':
                     $totalData = Supplier::whereNull('deleted_at')->get();
+                    $totals = count($totalData);
+                break;
+
+                case 'TOTAL_ORDER':
+                    $totalData = Order::whereNull('deleted_at')->get();
                     $totals = count($totalData);
                 break;
 
