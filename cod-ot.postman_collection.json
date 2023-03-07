@@ -591,7 +591,7 @@
 							"response": []
 						},
 						{
-							"name": "restore",
+							"name": "trash-management",
 							"request": {
 								"method": "DELETE",
 								"header": [
@@ -851,11 +851,8 @@
 					"item": [
 						{
 							"name": "order-management",
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
 							"request": {
-								"method": "GET",
+								"method": "POST",
 								"header": [
 									{
 										"key": "Accept",
@@ -888,31 +885,34 @@
 										},
 										{
 											"key": "qty",
-											"value": "4",
+											"value": "2",
 											"type": "text"
 										}
 									]
 								},
 								"url": {
-									"raw": "{{api_url}}/fitur/order-management?from=2023-02-19&to=2023-02-20",
+									"raw": "{{api_url}}/fitur/order-management",
 									"host": [
 										"{{api_url}}"
 									],
 									"path": [
 										"fitur",
 										"order-management"
-									],
-									"query": [
-										{
-											"key": "from",
-											"value": "2023-02-19"
-										},
-										{
-											"key": "to",
-											"value": "2023-02-20"
-										}
 									]
 								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Supplier",
+					"item": [
+						{
+							"name": "New Request",
+							"request": {
+								"method": "GET",
+								"header": []
 							},
 							"response": []
 						}

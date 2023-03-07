@@ -49,10 +49,8 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-
         Passport::routes();
         
-
         self::set_data();
 
         $gates = new FeatureHelpers($this->helpers);
