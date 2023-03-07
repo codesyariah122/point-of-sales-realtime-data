@@ -1,4 +1,8 @@
 <?php
+/**
+ * @author: pujiermanto@gmail.com
+ * @param ForceJsonResponse
+ * */
 
 namespace App\Http\Middleware;
 

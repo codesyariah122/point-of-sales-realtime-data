@@ -1,4 +1,8 @@
 <?php
+/**
+ * @author: pujiermanto@gmail.com
+ * @param For Percentage Products with Relationship Table
+ * */
 
 namespace App\Helpers;
 

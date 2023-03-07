@@ -51,27 +51,7 @@ class AuthServiceProvider extends ServiceProvider
 
 
         Passport::routes();
-        // Passport::tokensExpireIn(now()->addDays(7));
-
-        // Passport::refreshTokensExpireIn(now()->addDays(7));
-
-        // Passport::personalAccessTokensExpireIn(now()->addDays(7));
-        // Passport::personalAccessTokensExpireIn(Carbon::now()->addSecond(30));
-        // if (Passport::personalAccessTokensExpireIn(Carbon::now()->addSecond(30))) {
-
-        //     if ($request->header('Authorization') !== NULL) {
-        //         $token = $request->header('Authorization');
-        //         $token_login = explode(" ", $token)[1];
-        //         $user_token = Login::where('user_token_login', $token_login)->get();
-
-        //         $user_login = User::findOrFail($user_token[0]->user_id);
-        //         $user_login->is_login = 0;
-        //         $user_login->expires_at = NULL;
-        //         $user_login->save();
-        //         $user_token->delete();
-        //     }
-        // }
-
+        
 
         self::set_data();
 

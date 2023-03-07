@@ -1,4 +1,8 @@
 <?php
+/**
+ * @author: pujiermanto@gmail.com
+ * @param SessionExpired
+ * */
 
 namespace App\Http\Middleware;
 

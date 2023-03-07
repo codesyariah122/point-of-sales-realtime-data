@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * @author: pujiermanto@gmail.com
+ * @param SessionExpires at middleware
+ * @param Flush Session Auto Logout
+ * */
 
 namespace App\Http\Controllers\Api\Fitur;
 

@@ -1,4 +1,8 @@
 <?php
+/**
+ * @author: pujiermanto@gmail.com
+ * @param CorsMiddleware
+ * */
 
 namespace App\Http\Middleware;
 
