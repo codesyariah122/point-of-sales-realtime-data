@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Passport\HasApiTokens;
 
 class Order extends Model
 {
-    use HasFactory;
+    use HasApiTokens, HasFactory, Notifiable;
     use SoftDeletes;
 
     // protected $table = 'orders';

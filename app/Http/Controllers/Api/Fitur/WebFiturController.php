@@ -63,7 +63,7 @@ class WebFiturController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'barcode|invoice_number' => 'required',
+                'barcode' => 'required',
                 'name' => 'required'
             ]);
             if ($validator->fails()) {
